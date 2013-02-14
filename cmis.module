@@ -127,7 +127,20 @@ function cmis_invoke($repositry_id, $url = '', $properties = array()) {
   );
   
   $cmis_repository = cmis_get_repository((string) $repositry_id);
+  
+  // If the conf array has specified a transport, then we should use that and not look for modules implementing cmis_invoke
   $cmis_transport = $cmis_repository->settings['transport'];
+  
+  // If the default is in use, check that another module isn't implementing cmis_invoke
+  if ($cmis_transport == 'cmis_common'){
+    foreach (module_implements('cmis_invoke') as $module) {
+      //Determine which module to use and change the cmis_transport mechanism from the default set in cmis_get_repository
+      if($module != $cmis_transport){
+	    $cmis_transport = $module;
+	    break;
+      }
+    } 
+  }  
 
   // invoke hook_cmis()
   if (module_exists($cmis_transport)) {
@@ -211,7 +224,9 @@ class CMISException extends Exception {
  */
 function cmis_error_handler($type, $e) {
   watchdog($type, $e->getMessage(), NULL, WATCHDOG_ERROR);
-  drupal_set_message($e->getMessage(), 'error');
+  // Do we really want end users to see error returned from the CMIS server?
+  //drupal_set_message($e->getMessage(), 'error');
+  drupal_set_message(t("There has been an problem contacting the CMIS server, please see the logs."), 'error');
 }
 
 /**
@@ -255,7 +270,7 @@ function cmis_boot() {
  * CMIS repository switcher form.
  * 
  */
-function cmis_repository_switcher_form(& $form_state) {
+function cmis_repository_switcher_form($form, &$form_state) {
   $repositories = array();
   foreach(variable_get('cmis_repositories', array()) as $repository_name => $repository_info) {
     $repositories[$repository_name] = array_key_exists('label', $repository_info)?$repository_info['label']:$repository_name;
@@ -265,7 +280,7 @@ function cmis_repository_switcher_form(& $form_state) {
   $form['cmis_repository'] = array(
     '#type' => 'select',
     '#title' => t('CMIS repositories'),
-    '#default_value' => $_SESSION['cmis_repository'],
+    '#default_value' => isset($_SESSION['cmis_repository']) ? $_SESSION['cmis_repository'] : '',
     '#options' => $repositories 
   );
   

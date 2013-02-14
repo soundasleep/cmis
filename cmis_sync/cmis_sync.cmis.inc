@@ -67,10 +67,10 @@ function _cmis_sync_cmis_drupal_update($context = array()) {
 function _cmis_sync_cmis_drupal_handle_updates($repository, $sync_map_type, $node_type) {
   // get CMIS object properties 
   if (isset($sync_map_type['cmis_folderId'])) {
-    $cmis_folder = cmisapi_getProperties($cmis_repository->repositoryId, $sync_map_type['cmis_folderId']);
+    $cmis_folder = cmisapi_getProperties($repository->repositoryId, $sync_map_type['cmis_folderId']);
   }
   elseif (isset($sync_map_type['cmis_folderPath'])) {
-    $cmis_folder = cmisapi_getObjectByPath($cmis_repository->repositoryId, $sync_map_type['cmis_folderPath']);
+    $cmis_folder = cmisapi_getObjectByPath($repository->repositoryId, $sync_map_type['cmis_folderPath']);
   }
   else {
     throw new CMISException(t("Please set `cmis_folderPath` or `cmis_folderId` properties for [@type] Drupal type.", array(
@@ -80,8 +80,7 @@ function _cmis_sync_cmis_drupal_handle_updates($repository, $sync_map_type, $nod
 
   // select updated objects
   $sync_subfolders_rule = $sync_map_type['subfolders']?'IN_TREE':'IN_FOLDER';
-  $sync_full_rule =  $sync_map_type['full_sync_next_cron']?'':sprintf('AND cmis:lastModificationDate > \'%s\'', date_create('12 hour ago')->format('Y-m-d\TH:i:s.000-00:00'));
-  
+  $sync_full_rule =  $sync_map_type['full_sync_next_cron'] ? '' : sprintf('AND cmis:lastModificationDate >= \'%s\'', date_create('12 hour ago')->format('Y-m-d\TH:i:s.000-00:00'));
   // grab last updates
   $cmis_query = sprintf('SELECT * FROM %s WHERE %s(\'%s\') %s', $sync_map_type['cmis_type'], $sync_subfolders_rule, $cmis_folder->id, $sync_full_rule);
   $cmis_updates = cmisapi_query($repository->repositoryId, $cmis_query);
