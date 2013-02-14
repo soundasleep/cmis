@@ -32,6 +32,15 @@ function cmis_browser_menu() {
     'file' => 'cmis_browser.content_properties.inc'    
   );
   
+  $items['cmis/browser/search/%'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => 'cmis_browser_search',
+    'page arguments' => array(3,4),
+    'access callback' => 'user_access',
+    'access arguments' => array('access cmis'),
+    'file' => 'cmis_browser.content_search.inc'
+  );
+  
   $items['cmis/autocomplete'] = array(
     'title' => t('cmis path autocomplete'), 
     'page callback' => 'cmis_browser_autocomplete', 
@@ -132,26 +141,26 @@ function cmis_browser_theme() {
 function cmis_browser_browse_form($form, &$form_state) {
   $parts = explode('/', $_GET['q']);
   $path = implode('/', array_slice($parts, 2));
-  
-//TODO: Removing autocomplete as a buggy (and not-so-useful) feature. Need to replace with search. 
-/*
-  $form['path'] = array(
+   
+  $form['search'] = array(
     '#type' => 'textfield',
-    '#title' => t('Path'), 
-    '#default_value' => '/'.  $path, 
-    '#autocomplete_path' => 'cmis/autocomplete', 
+    '#title' => t('Search current folder and children'), 
     '#size' => 50,
-    //'#theme' => 'cmis_browser_folder_picker',
-    );
+  );
 
+  $form['path'] = array(
+    '#type' => 'hidden',
+    '#value' => $path,
+  );
+  //debug($path);
+  //debug(html_entity_decode($path));
   $form['submit'] = array(
     '#type' => 'submit',
     '#name' => 'browse',
     '#default_value' => 'Browse',
   );
 
-  return $form;
-  */    
+  return $form;    
 }
 
 /**
@@ -160,7 +169,7 @@ function cmis_browser_browse_form($form, &$form_state) {
  */
 function cmis_browser_browse_form_submit($form, &$form_state) {  
   unset($form_state['storage']);
-  $form_state['redirect'] = 'cmis/browser'. $form_state['values']['path'];;
+  $form_state['redirect'] = 'cmis/browser/search/'. $form_state['values']['search'].'/'.$form_state['values']['path'];
 }
 
 /**
