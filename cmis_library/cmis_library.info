@@ -1,0 +1,6 @@
+name = CMIS Library
+description = Wrapper around CMIS Library
+package = CMIS
+core = 7.x
+dependencies[] = libraries
+configure = admin/settings/cmis/library

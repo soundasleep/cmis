@@ -1,5 +1,11 @@
 <?php
-module_load_include('php', 'cmis_common', 'lib/cmis_repository_wrapper');
+
+//Need to add library in here.
+
+//$ret = libraries_get_path('AlchemyAPI');
+
+//module_load_include('php', 'cmis_common', 'lib/cmis_repository_wrapper');
+libraries_load('cmislib');
 
 class CommonCMISService extends CMISService {
   function doRequest($url, $method='GET', $content = NULL, $contentType = NULL, $charset = NULL) {
