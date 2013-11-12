@@ -19,16 +19,14 @@ function theme_cmis_browser($variables) {
  * 
  * @param $form
  */
- 
- /*
 function theme_cmis_browser_browse_form($variables) {
   $form = $variables['form'];
   $header = array('', '');
-  $rows = array(array(drupal_render($form['path']), drupal_render($form['path']), drupal_render($form['submit'])));
+  $rows = array(array(drupal_render($form['path']), drupal_render($form['submit'])));
   
   return theme('table', array('header' => $header, 'rows' => $rows)) . drupal_render_children($form);
 }
-*/
+
 /**
  * Custom theme for cmis_browser_browse action
  * 
