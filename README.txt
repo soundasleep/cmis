@@ -4,7 +4,7 @@ Content Management Interoperability Services client api
 
  CMIS package contains the following modules:
   * cmis.module - CMIS client api
-  * cmis_common.module - CMIS common client library implementation
+  * cmis_common.module - CMIS common client library implementation (loads external library)
   * cmis_browser.module - CMIS repository browser
   * cmis_query.module - Provides the ability to run CMIS 1.0 queries against
                         the current CMIS repository.
@@ -35,7 +35,10 @@ Installation
 ------------
 
  * Place the entire cmis folder into your modules directory.
+ * Create a new folder in the libraries folder called cmis-phplib
+ * Open the directory and checkout the PHP CMIS Library (svn checkout https://svn.apache.org/repos/asf/chemistry/phpclient/trunk/)
  * Go to Administer -> Site building -> Modules and enable the cmis modules.
+ * Check that the CMIS Library is being found (http://<site>/admin/settings/cmis/common)
  * Configure at least one CMIS repository (see below)
 
 
