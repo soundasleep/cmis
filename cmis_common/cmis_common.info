@@ -3,4 +3,5 @@ description = CMIS common client implementation
 package = CMIS
 core = "7.x"
 project = "cmis"
-
+dependencies[] = libraries
+configure = admin/settings/cmis/common
