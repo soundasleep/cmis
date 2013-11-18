@@ -36,12 +36,12 @@ function cmis_common_lib_check() {
   $library = libraries_detect('cmis-phplib');
   if ($library['installed']){
     $string = t('PHP CMIS Library detected - everything is good!');
-    $string .= "<p>".t("Found at: root/libraries/cmis-phplib/trunk/lib/cmis_repository_wrapper.php")."</p>";
+    $string .= "<p>".t("Found at: root/libraries/cmis-phplib/cmis-lib.php")."</p>";
     return $string;
   }else{
     $string = '<h1 class="error">'.t('PHP CMIS Library not detected').'</h1>';
     $string .= '<p>'.t('Please download the PHP CMIS Library from apache chemistry (https://svn.apache.org/repos/asf/chemistry/phpclient/trunk)').'</p>';
-    $string .= "<p>".t('Please check you libraries directory, the CMIS lib should be located at'). "<site>/libraries/cmis-phplib/trunk/lib/cmis_repository_wrapper.php".t(' or equivalent')."</p>";
+    $string .= "<p>".t('Please check you libraries directory, the CMIS lib should be located at'). "<site>/libraries/cmis-phplib/cmis-lib.php".t(' or equivalent')."</p>";
 	return $string;
   }
 }
@@ -63,7 +63,7 @@ function cmis_common_libraries_info() {
     'vendor url' => 'http://chemistry.apache.org/php/phpclient.html',
     'download url' => 'https://svn.apache.org/repos/asf/chemistry/phpclient/trunk',
     'version callback' => 'short_circuit_version',
-    'path' => 'trunk/atom',
+    //'path' => 'trunk/atom',
     'files' => array(
       'php' => array('cmis-lib.php'),
     ),

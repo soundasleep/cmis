@@ -35,8 +35,7 @@ Installation
 ------------
 
  * Place the entire cmis folder into your modules directory.
- * Create a new folder in the libraries folder called cmis-phplib
- * Open the directory and checkout the PHP CMIS Library (svn checkout https://svn.apache.org/repos/asf/chemistry/phpclient/trunk/)
+ * Download the PHP CMIS Lib from https://people.apache.org/~richardm/chemistry/phpclient/0.2.0-RC1/ and unzip in the libraries folder 
  * Go to Administer -> Site building -> Modules and enable the cmis modules.
  * Check that the CMIS Library is being found (http://<site>/admin/settings/cmis/common)
  * Configure at least one CMIS repository (see below)
