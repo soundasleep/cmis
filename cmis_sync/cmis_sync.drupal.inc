@@ -250,6 +250,7 @@ function _cmis_sync_drupal_node_field_value(&$node, $field_name, $field_value = 
           break;
 
         case 'text':
+        case 'text_textfield':	// to fix 'Unsupported sync drupal content field type [text_textfield]': see https://drupal.org/node/2074063#comment-7797843
         case 'text_textarea_with_summary':
           if ($field_value == NULL) {
             $value = $content_field['und'][0]['value'];
