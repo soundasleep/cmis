@@ -12,6 +12,7 @@ Make sure that you also have the `cmis-phplib` library installed into your `site
 ### Feature changes
 
 * _CMIS Check_ link is actually visible in _Configure_ menu
+* Content field type `text_textfield` [can be synced](https://drupal.org/node/2074063#comment-7797843)
 
 ### Developer changes
 
