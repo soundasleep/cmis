@@ -7,7 +7,7 @@ This is a port of the original [Drupal CMIS project](https://drupal.org/project/
 
 Right now you should just be able to drop this directly into an existing Drupal installation to replace the CMIS module with no ill effects. Not tested.
 
-Make sure that you also have the `cmis-phplib` library installed into your `sites/all/libraries/cmis-phplib` directory.
+Make sure that you also have the [`cmis-phplib` library](https://people.apache.org/~richardm/chemistry/phpclient/0.2.0-RC1/) installed into your `sites/all/libraries/cmis-phplib` directory.
 
 ### Feature changes
 
