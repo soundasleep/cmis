@@ -36,7 +36,7 @@ Installation
 
  * Place the entire cmis folder into your modules directory.
  * Either:
-   * Download the PHP CMIS Lib from https://people.apache.org/~richardm/chemistry/phpclient/0.2.0-RC1/ and unzip in the libraries folder
+   * Download the PHP CMIS Lib from https://people.apache.org/~richardm/chemistry/phpclient/0.2.0-RC1/ and unzip into the `sites/all/libraries/cmis-phplib` folder
    * Download the PHP CMIS Lib via Drush 'drush cmis-phplib' will install to sites/all/libraries/php-cmislib, or pass directory as a paramater 'drush cmis-phplib sites/cmis/libraries/php-cmislib'
  * Go to Administer -> Site building -> Modules and enable the cmis modules.
  * Check that the CMIS Library is being found (http://<site>/admin/config/cmis/common)
