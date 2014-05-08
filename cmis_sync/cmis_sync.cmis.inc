@@ -146,13 +146,16 @@ function _cmis_sync_cmis_drupal_handle_deletes($repository, $sync_map_type, $nod
 
   if ($sync_nodes->rowCount()) {
     // identify existing CMIS objects
-    $cmis_objects = cmisapi_query($repository->repositoryId, sprintf('SELECT cmis:objectId FROM %s WHERE cmis:objectId IN (\'%s\')', $sync_map_type['cmis_type'], join('\',\'', array_keys($cmis_nodes))));
-    foreach ($cmis_objects->objectList as $cmis_object) {
-      if (array_key_exists($cmis_object->id, $cmis_nodes)) {
-        unset($cmis_nodes[$cmis_object->id]); 
+    if (array_keys($cmis_nodes)) {
+      // issue #2219095: don't try to query if we don't have any cmis nodes for this node_type: prevents 'Invalid node ref - does not contain forward slash:' server error
+      $cmis_objects = cmisapi_query($repository->repositoryId, sprintf('SELECT cmis:objectId FROM %s WHERE cmis:objectId IN (\'%s\')', $sync_map_type['cmis_type'], join('\',\'', array_keys($cmis_nodes))));
+      foreach ($cmis_objects->objectList as $cmis_object) {
+        if (array_key_exists($cmis_object->id, $cmis_nodes)) {
+          unset($cmis_nodes[$cmis_object->id]);
+        }
       }
     }
-    
+
     if (count($cmis_nodes)) {
       // delete CMIS - Drupal reference
       db_delete('cmis_sync_node')

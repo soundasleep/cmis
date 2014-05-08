@@ -13,6 +13,7 @@ Make sure that you also have the [`cmis-phplib` library](https://people.apache.o
 
 * _CMIS Check_ link is actually visible in _Configure_ menu
 * Content field type `text_textfield` [can be synced](https://drupal.org/node/2074063#comment-7797843)
+* [#2219095](https://drupal.org/node/2219095): Prevent _Invalid node ref - does not contain forward slash:_ server error occurring when deleting nodes in `_cmis_sync_cmis_drupal_handle_deletes()`
 
 ### Developer changes
 
