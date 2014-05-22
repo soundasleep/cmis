@@ -24,7 +24,7 @@
         }
         return false;
       });
-      
+
       $(".cmis-field-insert", context).click(function() {
         if($.query['caller'] == 'settings') {
           var cmispath = $(this).attr('href');
@@ -33,7 +33,7 @@
         else {
           var cmispath = $(this).attr('id');
           var cmisname = $(this).attr('name');
-          //$('#edit-field-cmis-und-0-title', window.opener.document).val(cmisname);          
+          //$('#edit-field-cmis-und-0-title', window.opener.document).val(cmisname);
           $('.edit-field-cmis-field', window.opener.document).val(cmisname);
           $('.edit-field-cmis-path', window.opener.document).val(cmispath);
         }
@@ -42,7 +42,7 @@
       });
     }
   };
-  
+
   $.query = (function(a) {
     if (a == "") return {};
     var b = {};
