@@ -131,6 +131,8 @@ $conf['cmis_sync_map'] = array(
       - mandatory
   * content_field - Drupal node field that will be considered as content.
                   - optional, defaults to 'body'
+  * content_format - Machine name of the text format that the content_field will be
+                  - saved as, defaults to 'filtered_html'
   * fields - field sync map. Which Drupal field should sync with which CMIS property.
            - optional, defaults to 'array('title' => 'cmis:name')`'
   * deletes - if TRUE, sync process will delete drupal nodes
@@ -162,7 +164,7 @@ $conf['cmis_sync_map']['page']['fields'] = array(
 
 $conf['cmis_sync_map']['page']['fields'] = array(
   array('drupal' => 'title', 'cmis' => 'cmis:name', 'drupal to cmis' => TRUE, 'cmis to drupal' => TRUE),
-  array('drupal' => 'custom_cck_field', 'cmis' => 'some cmis custom property', 'drupal to cmis' => TRUE, 'cmis to drupal' => TRUE),
+  array('drupal' => 'custom_cck_field', 'cmis' => 'some cmis custom property', 'drupal to cmis' => TRUE, 'cmis to drupal' => TRUE, 'text_format' => 'full_html'),
 
   // copy cmis:objectId to custom_cck_field2 drupal field.
   // 'drupal to cmis' => FALSE, 'cmis to drupal' => TRUE means that only custom_cck_field2 Drupal field is updated.
