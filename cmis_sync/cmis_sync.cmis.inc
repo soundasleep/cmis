@@ -80,10 +80,26 @@ function _cmis_sync_cmis_drupal_handle_updates($repository, $sync_map_type, $nod
   }
 
   // select updated objects
-  $sync_subfolders_rule = $sync_map_type['subfolders']?'IN_TREE':'IN_FOLDER';
-  $sync_full_rule =  $sync_map_type['full_sync_next_cron'] ? '' : sprintf('AND cmis:lastModificationDate >= \'%s\'', date_create('12 hour ago')->format('Y-m-d\TH:i:s.000-00:00'));
-  // grab last updates
-  $cmis_query = sprintf('SELECT * FROM %s WHERE %s(\'%s\') %s', $sync_map_type['cmis_type'], $sync_subfolders_rule, $cmis_folder->id, $sync_full_rule);
+  // issue #1043/#2272943: do we need to also load cm:titled aspect?
+  $need_cm_titled = false;
+  foreach ($sync_map_type['fields'] as $field) {
+    if (isset($field['cmis']) && ($field['cmis'] == "cm:title" || $field['cmis'] == "cm:description")) {
+      $need_cm_titled = true;
+    }
+  }
+
+  $sync_subfolders_rule = $sync_map_type['subfolders'] ? 'IN_TREE' : 'IN_FOLDER';
+  if ($need_cm_titled) {
+    // modify query to use Alfresco CMIS extensions to get title through cm:titled aspect
+    $sync_full_rule =  $sync_map_type['full_sync_next_cron'] ? '' : sprintf('AND d.cmis:lastModificationDate >= \'%s\'', date_create('12 hour ago')->format('Y-m-d\TH:i:s.000-00:00'));
+    // grab last updates
+    $cmis_query = sprintf('SELECT d.*, t.* FROM %s AS d JOIN cm:titled AS t ON d.cmis:objectId = t.cmis:objectId WHERE %s(d, \'%s\') %s', $sync_map_type['cmis_type'], $sync_subfolders_rule, $cmis_folder->id, $sync_full_rule);
+  } else {
+    $sync_full_rule =  $sync_map_type['full_sync_next_cron'] ? '' : sprintf('AND cmis:lastModificationDate >= \'%s\'', date_create('12 hour ago')->format('Y-m-d\TH:i:s.000-00:00'));
+    // grab last updates
+    $cmis_query = sprintf('SELECT * FROM %s WHERE %s(\'%s\') %s', $sync_map_type['cmis_type'], $sync_subfolders_rule, $cmis_folder->id, $sync_full_rule);
+  }
+
   $cmis_updates = cmisapi_query($repository->repositoryId, $cmis_query);
   foreach ($cmis_updates->objectList as $cmis_update) {
     // build/lookup Drupal node

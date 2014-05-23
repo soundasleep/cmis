@@ -169,7 +169,10 @@ $conf['cmis_sync_map']['page']['fields'] = array(
   // copy cmis:objectId to custom_cck_field2 drupal field.
   // 'drupal to cmis' => FALSE, 'cmis to drupal' => TRUE means that only custom_cck_field2 Drupal field is updated.
   // sync process will not try to update cmis:objectId from custom_cck_field2 field's value.
-  array('drupal' => 'custom_cck_field2', 'cmis' => 'cmis:objectId', 'drupal to cmis' => FALSE, 'cmis to drupal' => TRUE)
+  array('drupal' => 'custom_cck_field2', 'cmis' => 'cmis:objectId', 'drupal to cmis' => FALSE, 'cmis to drupal' => TRUE),
+
+  // if using Alfresco, one can also synchronise cm:description and cm:title from the `cm:titled` aspect
+  array('drupal' => 'remote_title', 'cmis' => 'cm:title', 'drupal to cmis' => TRUE, 'cmis to drupal' => TRUE),
 )
 
 
@@ -251,6 +254,7 @@ Credits
   - Chris Fuller (cfuller@optaros.com)
   - Rich McKnight (rich.mcknight@alfresco.com)
   - Ian Norton (ian.norton@alfresco.com)
+  - Jevon Wright (jevon@rabidtech.co.nz)
 
  Maintainers
   - Catalin Balan (cbalan@optaros.com)

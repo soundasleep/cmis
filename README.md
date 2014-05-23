@@ -16,6 +16,7 @@ Make sure that you also have the [`cmis-phplib` library](https://people.apache.o
 * [#2219095](https://drupal.org/node/2219095): Prevent _Invalid node ref - does not contain forward slash:_ server error occurring when deleting nodes in `_cmis_sync_cmis_drupal_handle_deletes()`
 * [#1932658](https://drupal.org/node/1932658): Configurable default text format for CMIS content_field
 * If a CMIS field does not exist during sync, display a watchdog warning with the list of available fields, to assist debugging
+* [#2272943](https://drupal.org/node/2272943): Allow access to `cm:title` and `cm:description` fields for sync
 
 ### Developer changes
 
