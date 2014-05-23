@@ -216,14 +216,17 @@ function _cmis_sync_cmis_drupal_prepare($repository, $sync_map_type, $node_type,
         if (array_key_exists('cmis to drupal', $cmis_field) && $cmis_field['cmis to drupal'] === FALSE) {
           continue;
         }
-        if (!isset($cmis_object->properties[$cmis_field['cmis']])) {
+        if (!in_array($cmis_field['cmis'], array_keys($cmis_object->properties)) && !isset($cmis_object->properties[$cmis_field['cmis']])) {
           // if the given CMIS field is not available, display a warning to help debugging
+          // (the weird logic is because sometimes $cmis_object->properties is an object, other times it is an array..?)
           watchdog('cmis_sync_cron',
             "No such field '@field'. Fields available to CMIS sync: [@list]",
             array('@field' => $cmis_field['cmis'], '@list' => implode(", ", array_keys($cmis_object->properties))),
             WATCHDOG_WARNING);
         }
-        _cmis_sync_drupal_node_field_value($node, $cmis_field['drupal'], $cmis_object->properties[$cmis_field['cmis']]);
+        _cmis_sync_drupal_node_field_value($node,
+          $cmis_field['drupal'],
+          $cmis_object->properties[$cmis_field['cmis']]);
       }
       else {
         throw new CMISException(t('Unknown field map type. Expects "string" or "array". Received "@type"',
