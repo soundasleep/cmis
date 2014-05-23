@@ -1,31 +1,26 @@
-
 Content Management Interoperability Services client api
 -------------------------------------------------------
 
- CMIS package contains the following modules:
+CMIS package contains the following modules:
   * cmis.module - CMIS client api
   * cmis_common.module - CMIS common client library implementation (loads external library)
   * cmis_browser.module - CMIS repository browser
-  * cmis_query.module - Provides the ability to run CMIS 1.0 queries against
-                        the current CMIS repository.
-  * cmis_sync.module - Allows synchronization between
-                       Drupal nodes and CMIS objects.
-  * cmis_headerswing.module - Demo module that demonstrates using hook_cmis_invoke()
-			      to access the CMIS repository via header-based authentication
-                              such as Basic Auth or NTLM.
+  * cmis_query.module - Provides the ability to run CMIS 1.0 queries against the current CMIS repository.
+  * cmis_sync.module - Allows synchronization between Drupal nodes and CMIS objects.
+  * cmis_headerswing.module - Demo module that demonstrates using hook_cmis_invoke() to access the CMIS repository via header-based authentication such as Basic Auth or NTLM.
   * cmis_dev.module - Demo module that displays current CMIS repository's properties. Useful for basic connection testing.
 
 
 Contents
 --------
- * Requirements
- * Installation
- * Repository Configuration
- * Drupal-CMIS Syncronization
- * CMIS Hooks
- * CMIS Sync Hooks
- * CMIS Headerswing Settings
- * Credits
+  * Requirements
+  * Installation
+  * Repository Configuration
+  * Drupal-CMIS Syncronization
+  * CMIS Hooks
+  * CMIS Sync Hooks
+  * CMIS Headerswing Settings
+  * Credits
 
 Requirements
 ------------
@@ -34,20 +29,20 @@ PHP cURL
 Installation
 ------------
 
- * Place the entire cmis folder into your modules directory.
- * Either:
-   * Download the PHP CMIS Lib from https://people.apache.org/~richardm/chemistry/phpclient/0.2.0-RC1/ and unzip into the `sites/all/libraries/cmis-phplib` folder
-   * Download the PHP CMIS Lib via Drush 'drush cmis-phplib' will install to sites/all/libraries/php-cmislib, or pass directory as a paramater 'drush cmis-phplib sites/cmis/libraries/php-cmislib'
- * Go to Administer -> Site building -> Modules and enable the cmis modules.
- * Check that the CMIS Library is being found (http://<site>/admin/config/cmis/common)
- * Configure at least one CMIS repository (see below)
+  * Place the entire cmis folder into your modules directory.
+  * Either:
+    * Download the PHP CMIS Lib from https://people.apache.org/~richardm/chemistry/phpclient/0.2.0-RC1/ and unzip into the `sites/all/libraries/cmis-phplib` folder
+    * Download the PHP CMIS Lib via Drush 'drush cmis-phplib' will install to sites/all/libraries/php-cmislib, or pass directory as a paramater 'drush cmis-phplib sites/cmis/libraries/php-cmislib'
+  * Go to Administer -> Site building -> Modules and enable the cmis modules.
+  * Check that the CMIS Library is being found (http://<site>/admin/config/cmis/common)
+  * Configure at least one CMIS repository (see below)
 
 
 Repository Configuration
 ------------------------
 
- Make sure that `cmis`, `cmis_common`, `cmis_browser` and `cmis_query` modules
- are enabled and add the following lines in your `settings.php` file:
+Make sure that `cmis`, `cmis_common`, `cmis_browser` and `cmis_query` modules
+are enabled and add the following lines in your `settings.php` file:
 
 $conf['cmis_repositories'] = array(
   'default' => array(
@@ -58,38 +53,43 @@ $conf['cmis_repositories'] = array(
 );
 
 
- Settings:
-  * user - Generic username used by cmis_common to authenticate Drupal to the CMIS repository
-         - optional, used by cmis_common
-  * password - Generic password used by cmis_common to authenticate Drupal to the CMIS repository
-             - optional, used by cmis_common
-  * url - CMIS repository endpoint url
-        - mandatory, used by cmis_common
-  * label - repository label
-          - optional, used by cmis_browser's CMIS repository switcher block, useful if connecting to multiple repositories
+Settings:
+  * user
+      - Generic username used by cmis_common to authenticate Drupal to the CMIS repository
+      - optional, used by cmis_common
+  * password
+      - Generic password used by cmis_common to authenticate Drupal to the CMIS repository
+      - optional, used by cmis_common
+  * url
+      - CMIS repository endpoint url
+      - mandatory, used by cmis_common
+  * label
+      - repository label
+      - optional, used by cmis_browser's CMIS repository switcher block, useful if connecting to multiple repositories
   * browser_default_folderId, browser_default_folderPath
       - default CMIS folder displayed by cmis_browser module
       - optional, defaults to `repositoryInfo['cmis:rootFolderId']`, used by cmis_browser
-  * transport - Drupal's module that implements hook_cmis_invoke($url, $properties, $settings) hook, where :
-                      - $url - CMIS absolute REST url
-                      - $properties - request properties
-                      - $settings - CMIS repositories settings comming from $conf['cmis_repositories']
-              - optional, defaults to `cmis_common` used by cmis module
-	      - See cmis_headerswing section below for more information
+  * transport
+      - Drupal's module that implements hook_cmis_invoke($url, $properties, $settings) hook, where:
+          - $url - CMIS absolute REST url
+          - $properties - request properties
+          - $settings - CMIS repositories settings comming from $conf['cmis_repositories']
+      - optional, defaults to `cmis_common` used by cmis module
+	    - See cmis_headerswing section below for more information
 
 
- To browse the CMIS repository go to http://localhost/cmis/browser.
- To query it go to http://localhost/cmis/query.
+To browse the CMIS repository go to http://localhost/cmis/browser.
+To query it go to http://localhost/cmis/query.
 
- Query example:
- To perform the query "select * from cmis:document" go to
- http://localhost/cmis/query/select%2B%252A%2Bfrom%2Bcmis%253Adocument
+Query example:
+To perform the query "select * from cmis:document" go to
+http://localhost/cmis/query/select%2B%252A%2Bfrom%2Bcmis%253Adocument
 
 Drupal-CMIS synchronization
 ---------------------------
 
- Make sure that cmis_sync module is enabled and cmis_repositories config var is set.
- Add the following lines to your settings.php file:
+Make sure that cmis_sync module is enabled and cmis_repositories config var is set.
+Add the following lines to your settings.php file:
 
 $conf['cmis_sync_map'] = array(
   'page' => array(
@@ -103,7 +103,7 @@ $conf['cmis_sync_map'] = array(
 		'fields' => array(
 			'title' => 'cmis:name',
 			'custom_field' => 'cmis:otherCustomProperty',
-			array('drupal' => 'some_other_custom_field', 'cmis' => 'cmis:someOtherCustomProperty', 'cmis to drupal' => TRUE, 'drupal to cmis' => TRUE)
+			array('drupal' => 'some_other_custom_field', 'cmis' => 'cmis:someOtherCustomProperty', 'cmis to drupal' => TRUE, 'drupal to cmis' => TRUE),
 		)
   ),
 
@@ -118,46 +118,51 @@ $conf['cmis_sync_map'] = array(
 
 
  Settings:
-  * enabled - synchronization state for current drupal content type
-            - mandatory
-  * cmis_repositoryId - repository id or alias
-                      - optional, deaults to 'default' CMIS repository
-  * cmis_type - CMIS type used by sync process for CMIS objects synchronized
-                with Drupal nodes
-              - optional, defaults to 'cmis:document'
-  * cmis_folderId, cmis_folderPath
-      - CMIS folder used as destination for CMIS objects synchronized
-        with Drupal nodes
+  * enabled
+      - synchronization state for current drupal content type
       - mandatory
-  * content_field - Drupal node field that will be considered as content.
-                  - optional, defaults to 'body'
-  * content_format - Machine name of the text format that the content_field will be
-                  - saved as, defaults to 'filtered_html'
-  * fields - field sync map. Which Drupal field should sync with which CMIS property.
-           - optional, defaults to 'array('title' => 'cmis:name')`'
-  * deletes - if TRUE, sync process will delete drupal nodes
-              if CMIS objects have been deleted and vice versa
-            - optional, default: 'FALSE'
-  * subfolders - if TRUE, CMIS objects under cmis_folderId will also be synchronized.
-               - optional, default: 'FALSE'
-  * full_sync_next_cron - if TRUE, at next cron run, sync process
-                          will synchronize all CMIS objects under cmis_folderId
-                          not only the recent changed items
-                        - optional, default: 'FALSE'
-  * cmis_sync_cron_enabled - if TRUE, CMIS to Drupal sync will be triggered by cron.
-                           - useful if sync process is triggered by another event
-                           - optional, default: 'TRUE'
-  * cmis_sync_nodeapi_enabled - if TRUE, Drupal to CMIS sync will be triggered by
-                                nodeapi's insert, update, and delete operations
-                              - useful if sync process is triggered by another event.
-                              - optional, default: 'TRUE'
+  * cmis_repositoryId
+      - repository id or alias
+      - optional, defaults to 'default' CMIS repository
+  * cmis_type
+      - CMIS type used by sync process for CMIS objects synchronized with Drupal nodes
+      - optional, defaults to 'cmis:document'
+  * cmis_folderId, cmis_folderPath
+      - CMIS folder used as destination for CMIS objects synchronized with Drupal nodes
+      - mandatory
+  * content_field
+      - Drupal node field that will be considered as content.
+      - optional, defaults to 'body'
+  * content_format
+      - Machine name of the text format that the content_field will be saved as
+      - optional, defaults to 'filtered_html'
+  * fields
+      - field sync map. Which Drupal field should sync with which CMIS property.
+      - optional, defaults to `array('title' => 'cmis:name')`
+  * deletes
+      - if TRUE, sync process will delete drupal nodes if CMIS objects have been deleted and vice versa
+      - optional, default: 'FALSE'
+  * subfolders
+      - if TRUE, CMIS objects under cmis_folderId will also be synchronized.
+      - optional, default: 'FALSE'
+  * full_sync_next_cron
+      - if TRUE, at next cron run, sync process will synchronize all CMIS objects under cmis_folderId, not only the recent changed items
+      - optional, default: 'FALSE'
+  * cmis_sync_cron_enabled
+      - if TRUE, CMIS to Drupal sync will be triggered by cron.
+      - useful if sync process is triggered by another event
+      - optional, default: 'TRUE'
+  * cmis_sync_nodeapi_enabled
+      - if TRUE, Drupal to CMIS sync will be triggered by nodeapi's insert, update, and delete operations
+      - useful if sync process is triggered by another event.
+      - optional, default: 'TRUE'
 
- Fields sync setting syntax:
+Syntax for setting the `fields` for sync:
   * short hand syntax:
 
 $conf['cmis_sync_map']['page']['fields'] = array(
   'title' => 'cmis:name',
-  'custom_cck_field' => 'some cmis custom property'
+  'custom_cck_field' => 'some cmis custom property',
 )
 
   * long hand syntax
@@ -179,14 +184,17 @@ $conf['cmis_sync_map']['page']['fields'] = array(
 CMIS Hooks
 ----------
 
- * hook_cmis_invoke() - allows control over CMIS repository connection.
- * hook_cmis_info() - used to register a module that implements a CMIS client.
- * hook_cmisapi_invoke() - called by cmis api whenever a cmisapi_* is called.
- * hook_cmisapi_*() - where * means any CMIS call(ie. getRepositoryInfo).
-                    - these hooks are called only if hook_cmisapi_invoke()
-                    is not defined.
+ * hook_cmis_invoke()
+    - allows control over CMIS repository connection.
+ * hook_cmis_info()
+    - used to register a module that implements a CMIS client.
+ * hook_cmisapi_invoke()
+    - called by cmis api whenever a cmisapi_* is called.
+ * hook_cmisapi_*()
+    - where * means any CMIS call(ie. getRepositoryInfo).
+    - these hooks are called only if hook_cmisapi_invoke() is not defined.
 
- Examples of how these hooks are used, can be found in the following files:
+Examples of how these hooks are used, can be found in the following files:
   - cmis.module
   - cmis.api.inc
   - cmis_custom.module (hook_cmisapi_invoke)
@@ -196,29 +204,29 @@ CMIS Hooks
 CMIS Sync Hooks
 ---------------
 
- In order to allow other Drupal modules to manipulate the way Drupal nodes
- are mapped to CMIS objects and back, cmis_sync module exposes two hooks:
+In order to allow other Drupal modules to manipulate the way Drupal nodes
+are mapped to CMIS objects and back, cmis_sync module exposes two hooks:
   * hook_sync_drupal_cmis_prepare($node, $cmis_object)
         - Called after cmis_sync, based on $conf['cmis_sync_map'],
-        prepared `$cmis_object` to be sent to CMIS repository.
+        - prepared `$cmis_object` to be sent to CMIS repository.
   * hook_sync_cmis_drupal_prepare($cmis_object, $node)
         - Called after cmis_sync, based on $conf['cmis_sync_map'],
-        prepared $node to be sent to Drupal's node_save()
+        - prepared $node to be sent to Drupal's node_save()
 
 
 CMIS Headerswing Settings
 -------------------------
 
- The CMIS Headerswing module provides a mechanism for relaying (or "swinging") HTTP header data
- from Drupal to the CMIS repository. In theory, this can be used to relay any HTTP header.
- In practice, this is particularly useful for passing user authentication information from
- Drupal to the CMIS repository, providing Single Sign-On (SSO), when authentication is managed by
- a third party component that populates $_SERVER vars with credentials, such as HTTP Basic or NTLM.
+The CMIS Headerswing module provides a mechanism for relaying (or "swinging") HTTP header data
+from Drupal to the CMIS repository. In theory, this can be used to relay any HTTP header.
+In practice, this is particularly useful for passing user authentication information from
+Drupal to the CMIS repository, providing Single Sign-On (SSO), when authentication is managed by
+a third party component that populates $_SERVER vars with credentials, such as HTTP Basic or NTLM.
 
- This module also provides an example of how to create a custom implementation of
- hook_cmis_invoke(), overriding the default transport mechanism.
+This module also provides an example of how to create a custom implementation of
+hook_cmis_invoke(), overriding the default transport mechanism.
 
- Configuration sample:
+Configuration sample:
 
 $conf['cmis_repositories'] = array(
   'default' => array(
@@ -237,8 +245,8 @@ $conf['cmis_repositories'] = array(
   )
 );
 
- Based on these settings cmis_headerswing module will copy $_SERVER[ headerswing_headers's keys ]
- to the CMIS request headers.
+Based on these settings cmis_headerswing module will copy $_SERVER[ headerswing_headers's keys ]
+to the CMIS request headers.
 
 
 Credits
