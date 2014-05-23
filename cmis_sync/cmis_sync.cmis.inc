@@ -216,6 +216,13 @@ function _cmis_sync_cmis_drupal_prepare($repository, $sync_map_type, $node_type,
         if (array_key_exists('cmis to drupal', $cmis_field) && $cmis_field['cmis to drupal'] === FALSE) {
           continue;
         }
+        if (!isset($cmis_object->properties[$cmis_field['cmis']])) {
+          // if the given CMIS field is not available, display a warning to help debugging
+          watchdog('cmis_sync_cron',
+            "No such field '@field'. Fields available to CMIS sync: [@list]",
+            array('@field' => $cmis_field['cmis'], '@list' => implode(", ", array_keys($cmis_object->properties))),
+            WATCHDOG_WARNING);
+        }
         _cmis_sync_drupal_node_field_value($node, $cmis_field['drupal'], $cmis_object->properties[$cmis_field['cmis']]);
       }
       else {
