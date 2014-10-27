@@ -3,6 +3,20 @@
 /**
  * @file - install file for CMIS Sync module
  */
+/**
+ * Implentation of hook_uninstall().
+ */
+function cmis_sync_uninstall() {
+  // Delete variables.
+  // variable_del('cmis_sync');
+  // Delete geocoder settings.
+  db_delete('variable')
+    ->condition('name', db_like('cmis_sync') . '%', 'LIKE')
+    ->execute();
+  db_drop_table('cmis_sync_node');
+  cache_clear_all('variables', 'cache_bootstrap');
+}
+
 
 /**
  * Implementation of hook_schema()
@@ -26,6 +40,13 @@ function cmis_sync_schema() {
         'default'  => '',
         'description' => t('objectId from the CMIS repository'),
       ),
+      'cmis_versionLabel' => array(
+        'type'     => 'varchar',
+        'length'   => 255,
+        'not null' => TRUE,
+        'default'  => '',
+        'description' => t('versionLabel from the CMIS repository'),
+      ),
       'changed_timestamp' => array(
         'type'     => 'int',
         'unsigned' => TRUE,
@@ -39,10 +60,17 @@ function cmis_sync_schema() {
     ),
     'indexes' => array(
       'cmis_sync_repo_idx' => array('cmis_repositoryId'),
-      'cmis_sync_obj_idx' => array('cmis_objectId')
+      'cmis_sync_obj_idx' => array('cmis_objectId'),
+      'cmis_sync_ver_idx' => array('cmis_versionLabel')
     ),
     'primary key' => array('id'),
   );
-
   return $schema;
+}
+
+/**
+ * Implementation of hook_install().
+ */
+function cmis_sync_install() {
+  cmis_sync_schema();
 }
