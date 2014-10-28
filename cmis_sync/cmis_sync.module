@@ -62,6 +62,7 @@
  * @return unknown_type
  */
 function cmis_sync_node_insert($node) {
+  global $user;
   if (!isset($node->cmis_sync_disabled)) {
     module_load_include('drupal.inc', 'cmis_sync');
     try {
@@ -79,6 +80,7 @@ function cmis_sync_node_insert($node) {
  * @return unknown_type
  */
 function cmis_sync_node_update($node) {
+  global $user;
   if (!isset($node->cmis_sync_disabled)) {
     module_load_include('drupal.inc', 'cmis_sync');
     try {
@@ -96,6 +98,7 @@ function cmis_sync_node_update($node) {
  * @return unknown_type
  */
 function cmis_sync_node_delete($node) {
+  global $user;
   if (!isset($node->cmis_sync_disabled)) {
     module_load_include('drupal.inc', 'cmis_sync');
     try {
@@ -112,13 +115,16 @@ function cmis_sync_node_delete($node) {
  *
  */
 function cmis_sync_cron() {
+  global $user;
   if (variable_get('cmis_sync_cron_enabled', TRUE)) {
+	drupal_flush_all_caches();
     module_load_include('cmis.inc', 'cmis_sync');
     try {
       _cmis_sync_cmis_drupal_update();
     }
     catch (CMISException $e) {
       cmis_error_handler('cmis_sync_cron', $e);
+	  watchdog('cmis_sync_cron', "CMIS Sync Error: @list", array('@list' => implode(", ", array_keys($e))), WATCHDOG_WARNING);
     }
   }
 }
