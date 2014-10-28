@@ -200,9 +200,12 @@ function _cmis_sync_drupal_node_field_value(&$node, $field_name, $field_value = 
     $fields = field_info_instances('node', $node->type);
     $value = NULL;
     if (array_key_exists($field_name, $fields)) {
-      if ($field_name != NULL){
+      if ($field_name != NULL && array_key_exists($field_name, $node))
         $content_field = $node->{$field_name};
-      }
+	  else {
+	  	$content_field = $field_name;
+		$field_value = NULL;
+	  }
       switch($fields[$field_name]['widget']['type']) {
         case 'image_image':
         case 'file_generic':
@@ -253,12 +256,16 @@ function _cmis_sync_drupal_node_field_value(&$node, $field_name, $field_value = 
         case 'text_textfield':	// to fix 'Unsupported sync drupal content field type [text_textfield]': see https://drupal.org/node/2074063#comment-7797843
         case 'text_textarea_with_summary':
           if ($field_value == NULL) {
-            $value = $content_field['und'][0]['value'];
+			  if ($content_field != NULL && is_array($content_field) && array_key_exists('value', $content_field)){
+				  $value = utf8_encode($content_field[LANGUAGE_NONE][0]['value']);
+			  }
+			  else
+			  	   $value = NULL;           
           }
           else {
             $node->$field_name = array();
-            $node->{$field_name}['und'][0]['value'] = $field_value;
-            $node->{$field_name}['und'][0]['format'] = $text_format;
+            $node->{$field_name}[LANGUAGE_NONE][0]['value'] = utf8_encode($field_value);
+            $node->{$field_name}[LANGUAGE_NONE][0]['format'] = $text_format;
           }
           break;
         case 'date':
@@ -268,11 +275,11 @@ function _cmis_sync_drupal_node_field_value(&$node, $field_name, $field_value = 
         case 'number_float':
         case 'number_integer':
           if ($field_value == NULL) {
-            $value = $content_field['und'][0]['value'];
+            $value = $content_field[LANGUAGE_NONE][0]['value'];
           }
           else {
             $node->$field_name = array();
-            $node->{$field_name}['und'][0]['value'] = $field_value;
+            $node->{$field_name}[LANGUAGE_NONE][0]['value'] = $field_value;
           }
           break;
         default:
@@ -289,7 +296,7 @@ function _cmis_sync_drupal_node_field_value(&$node, $field_name, $field_value = 
         $value = $node->{$field_name};
       }
       else {
-        $node->$field_name = $field_value;
+        $node->$field_name = utf8_encode($field_value);
       }
     }
 
@@ -299,5 +306,4 @@ function _cmis_sync_drupal_node_field_value(&$node, $field_name, $field_value = 
     return NULL;
   }
 }
-
-
+?>
