@@ -31,6 +31,7 @@ function _cmis_sync_drupal_cmis_update($node, $op) {
             'nid' => $node->nid,
             'cmis_repositoryId' => $cmis_object->repositoryId,
             'cmis_objectId' => $new_cmis_object->id,
+            'cmis_versionLabel' => $new_cmis_object->properties['cmis:versionLabel'],
             'changed_timestamp' => $_SERVER['REQUEST_TIME'],
           ))
           ->execute();
@@ -46,13 +47,12 @@ function _cmis_sync_drupal_cmis_update($node, $op) {
             if ($cmis_object->content) {
               cmisapi_setContentStream($cmis_object->repositoryId, $row->cmis_objectId, $cmis_object->content, $cmis_object->contentStreamMimeType);
             }
-
             // updating CMIS properties
             cmisapi_updateProperties($cmis_object->repositoryId, $row->cmis_objectId, $cmis_object->properties);
-
-            // update changed timestamp
-            db_query('UPDATE {cmis_sync_node} SET changed_timestamp = :changed WHERE nid = :nid',
-              array(':changed' => $_SERVER['REQUEST_TIME'], ':nid' => $node->nid));
+            // update data that may have changed
+            db_query('UPDATE {cmis_sync_node} SET changed_timestamp = :changed, cmis_versionLabel= :version, cmis_repositoryId = :repositoryId WHERE nid = :nid',
+                array(':changed' => $_SERVER['REQUEST_TIME'], ':version' => $cmis_object->properties['cmis:versionLabel'], ':repositoryId' => $cmis_object->repositoryId, ':nid' => $node->nid));
+            watchdog('cmis_sync_cron', 'Updated nid @nid', array('@nid' => $drupal_node->nid));
           }
           catch (CMISException $e) {
             cmis_error_handler('cmis_sync_nodeapi', $e);
@@ -105,6 +105,7 @@ function _cmis_sync_drupal_cmis_prepare($node) {
       'fields' => array(),
       'content_field' => 'body',
       'cmis_type' => 'cmis:document',
+      'cmis_versionLabel' => 'cmis:versionLabel',
       'cmis_repositoryId' => 'default',
       'subfolders' => FALSE,
       'deletes' => FALSE,
