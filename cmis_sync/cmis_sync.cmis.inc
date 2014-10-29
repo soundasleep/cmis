@@ -23,6 +23,7 @@ function _cmis_sync_cmis_drupal_update($context = array()) {
       'content_field' => 'body',
       'content_format' => filter_default_format(),
       'cmis_type' => 'cmis:document',
+      'cmis_versionLabel' => 'cmis:versionLabel',
       'cmis_repositoryId' => 'default',
       'subfolders' => FALSE,
       'deletes' => FALSE,
@@ -123,6 +124,8 @@ function _cmis_sync_cmis_drupal_handle_updates($repository, $sync_map_type, $nod
 		  db_update('cmis_sync_node')
 			->fields(array(
 			  'changed_timestamp' => $_SERVER['REQUEST_TIME'],
+			  'cmis_repositoryId' => $repository->repositoryId,
+			  'cmis_versionLabel' => $cmis_update->properties['cmis:versionLabel'],
 			  'nid' => $drupal_node->nid,
 			))
 			->condition('cmis_objectId', $cmis_update->id)
@@ -135,6 +138,7 @@ function _cmis_sync_cmis_drupal_handle_updates($repository, $sync_map_type, $nod
 			  'nid' => $drupal_node->nid,
 			  'cmis_repositoryId' => $repository->repositoryId,
 			  'cmis_objectId' => $cmis_update->id,
+			  'cmis_versionLabel' => $cmis_update->properties['cmis:versionLabel'],
 			  'changed_timestamp' => $_SERVER['REQUEST_TIME'],
 			))
 			->execute();
@@ -142,7 +146,6 @@ function _cmis_sync_cmis_drupal_handle_updates($repository, $sync_map_type, $nod
 		}
 	}
 	else {
-		//print_r($drupal_node);
 		watchdog('cmis_sync_cron', 'Node Not Created for @cid', array('@cid' => $cmis_update->id));
 	}
   }
@@ -233,12 +236,11 @@ function _cmis_sync_cmis_drupal_prepare($repository, $sync_map_type, $node_type,
 		$node->is_new = FALSE;//FOR UPDATE NODE THIS HAS TO BE FALSE
 		if(empty($node)) {
 			watchdog('cmis_sync_cron', 'Failed to Load Nid @nid', array('@nid' => $drupal_nid));
-			throw new CMISException(t('Unsupported Drupal Content field type [@cmis_sync]. Check Settings Configuration.', array('@cmis_sync' => print_r($cmis_sync_nodes))));
+			throw new CMISException(t('Unsupported Drupal Content field type [@cmis_sync]. Check Settings Configuration.', array('@cmis_sync' => print_r($cmis_sync_nodes,1))));
 		}
     }
 	else // Create New Drupal node
 		$node = _cmis_sync_cmis_drupal_get_node($node_type,$sync_map_type,$cmis_object->properties['cmis:name'],array());
-	
 	// fix node title
     if (!empty($cmis_object->properties['cmis:name'])) {
       $node->title = drupal_set_title(utf8_encode($cmis_object->properties['cmis:name']));
@@ -303,7 +305,6 @@ function _cmis_sync_cmis_drupal_prepare($repository, $sync_map_type, $node_type,
 
     // call hook_sync_cmis_drupal_prepare() hooks
     module_invoke_all('sync_cmis_drupal_prepare', $cmis_object, $node);
-	
     return $node;
   }
 
@@ -327,7 +328,6 @@ function _cmis_sync_cmis_drupal_get_node($node_type, $sync_map_type, $title, $no
 	$node->language = LANGUAGE_NONE;
 	$node->is_new = TRUE;
 	$node->format = isset($sync_map_type['content_format']) ? $sync_map_type['content_format'] : filter_default_format();
-	
 	$node->comment = variable_get('comment_' . $node_type);
 	$node_type_default = variable_get('node_options_' . $node_type, array('status', 'promote','publish','revision','sticky','translate'));
 	$node->validated = TRUE;
@@ -339,48 +339,4 @@ function _cmis_sync_cmis_drupal_get_node($node_type, $sync_map_type, $title, $no
 	$node->translate = in_array('translate', $node_type_default);
 	return $node;
 }
-
-/*
-function _cmis_sync_cmis_drupal_get_node($node_type, $sync_map_type, $title, $node_settings = array()) {
-	$node_type_default = variable_get('node_options_' . $node_type, array('status', 'promote','publish','revision','sticky','translate'));
-	// Populate defaults array.
-	$node_settings += array(
-		'body' => array(LANGUAGE_NONE => array(array())),
-		'title' => $title,
-		'comment' => NULL,
-		'changed' => REQUEST_TIME,
-		'moderate' => in_array('promote', $node_type_default),
-		'promote' => in_array('promote', $node_type_default),
-		'revision' => in_array('promote', $node_type_default),
-		'log' => NULL,
-		'status' => in_array('promote', $node_type_default),
-		'sticky' => in_array('promote', $node_type_default),
-		'type' => $node_type,
-		'revisions' => NULL,
-		'language' => LANGUAGE_NONE,
-     );
-	 // Use the original node's created time for existing nodes.
-	 if (isset($node_settings['created']) && !isset($node_settings['date'])) {
-		 $node_settings['date'] = format_date($node_settings['created'], 'custom', 'Y-m-d H:i:s O');
-	 }
-	 // If the node's user uid is not specified manually, use the currently
-	 // logged in user if available, or else the user running the test.
-	 if (!isset($settings['uid'])) {
-		 if ($this->loggedInUser) {
-			 $node_settings['uid'] = $this->loggedInUser->uid;
-		 } else {
-			 global $user;
-			 $node_settings['uid'] = $user->uid;
-		 }
-	 }
-	 // Merge body field value and format separately.
-	 $body = array(
-		'value' => NULL,
-		'format' => isset($sync_map_type['content_format']) ? $sync_map_type['content_format'] : filter_default_format(),
-	 );
-	 $node_settings['body'][$node_settings['language']][0] += $body;
-	 $node = (object) $node_settings;
-	 return $node;
-}
-*/
 ?>
