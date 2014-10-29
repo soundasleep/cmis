@@ -65,6 +65,7 @@ function cmis_sync_schema() {
     ),
     'primary key' => array('id'),
   );
+  
   return $schema;
 }
 
@@ -74,3 +75,39 @@ function cmis_sync_schema() {
 function cmis_sync_install() {
   cmis_sync_schema();
 }
+
+/**
+* Added Table Column 'cmis_versionLabel'
+*/
+# Implementation of hook_update_N()
+# https://api.drupal.org/api/drupal/modules!system!system.api.php/function/hook_update_N/7
+# https://drupal.org/node/150215
+function trutest_selector_update_7200() {
+  $fields = array(
+    'cmis_versionLabel' => array(
+      'description' => 'versionLabel from the CMIS repository',
+      'type' => 'varchar',
+      'length' => '255',
+      'not null' => TRUE,
+      'default' => '',
+    ),
+  );
+  $indexes = array(
+    'cmis_sync_ver_idx' => array('cmis_versionLabel')
+  );
+  $mess = NULL;
+  foreach ($fields as $f => $field)  {
+    if (!db_field_exists('cmis_sync_node', $f)) {
+      db_add_field('cmis_sync_node', $f, $field);
+	  $mess .= 'Database column <pre>'.$f.'<pre> Added \n <br/>';
+	  foreach ($indexes as $i => $index)  {
+		if (!db_index_exists('cmis_sync_node', $i)) {
+		  db_add_index('cmis_sync_node', $i, array($f));
+		  $mess .= 'With Index <pre>'.$i.'<pre> for field <pre>'.$f.'<pre> Added \n <br/>';
+		}
+	  }
+    }
+  }
+  return t($mess);
+}
+?>
