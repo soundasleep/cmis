@@ -8,8 +8,6 @@
  */
 function cmis_sync_uninstall() {
   // Delete variables.
-  // variable_del('cmis_sync');
-  // Delete geocoder settings.
   db_delete('variable')
     ->condition('name', db_like('cmis_sync') . '%', 'LIKE')
     ->execute();
@@ -82,7 +80,7 @@ function cmis_sync_install() {
 # Implementation of hook_update_N()
 # https://api.drupal.org/api/drupal/modules!system!system.api.php/function/hook_update_N/7
 # https://drupal.org/node/150215
-function trutest_selector_update_7200() {
+function trutest_selector_update_7201() {
   $fields = array(
     'cmis_versionLabel' => array(
       'description' => 'versionLabel from the CMIS repository',
