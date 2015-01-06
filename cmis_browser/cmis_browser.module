@@ -14,6 +14,15 @@ function cmis_browser_menu() {
     'access arguments' => array('access cmis'),
     'file' => 'cmis_browser.content_get.inc'
   );
+  
+  $items['admin/cmis/browser'] = array(
+    'type' => MENU_NORMAL_ITEM,
+    'title' => t('CMIS Browser'),
+    'page callback' => 'cmis_browser_content_get',
+    'access callback' => 'user_access',
+    'access arguments' => array('access cmis'),
+    'file' => 'cmis_browser.content_get.inc'
+  );
 
   $items['cmis/delete'] = array(
     'type' => MENU_CALLBACK,

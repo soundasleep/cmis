@@ -1,5 +1,5 @@
 name = CMIS Sync
-description = Provides synchronization with other CMIS repositories 
+description = Provides Content synchronization with other CMIS repositories 
 package = CMIS
 dependencies[] = cmis
 core = "7.x"
@@ -8,3 +8,4 @@ version = "7.x-2.x-dev"
 core = "7.x"
 project = "cmis"
 datestamp = "1414465334"
+

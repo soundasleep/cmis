@@ -52,7 +52,7 @@ function _cmis_browser_content_get_document($repository, $object) {
   if (ob_get_level()) {
     ob_end_clean();
   }
-
+  
   drupal_add_http_header('Cache-Control', 'no-cache, must-revalidate');
   drupal_add_http_header('Content-type', $object->properties['cmis:contentStreamMimeType']);
   if ($object->properties['cmis:contentStreamMimeType'] != 'text/html') {

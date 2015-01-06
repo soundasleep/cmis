@@ -1,0 +1,11 @@
+name = CMIS Taxonomy
+description = Provides Category/Tags with other CMIS repositories without hierarchy
+package = CMIS
+dependencies[] = cmis
+core = "7.x"
+; Information added by  packaging script on 2014-11-11
+version = "7.x-2.x-dev"
+core = "7.x"
+project = "cmis"
+datestamp = "1415669027"
+
