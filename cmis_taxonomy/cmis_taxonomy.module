@@ -2,10 +2,10 @@
 /**
 * Module code to import of CMIS Tag/Category data into 'taxonomy'.
 *
-* @todo add Vocabulary Creation.
+* @todo add Vocabulary Creation Scripts.
 */
-                                                               
-// Batch limit for csv processing in 'cmis_taxonomy_import'
+
+// Batch limit for processing in 'cmis_taxonomy_import'
 define('CMIS_TAXONOMY_IMPORT_BATCH_LIMIT', 100);
 
 // Step by step debug in all functions 'CMIS_TAXONOMY_IMPORT_DEBUG':
@@ -113,7 +113,7 @@ function cmis_taxonomy_access($account) {
 		else if (user_access('cmis_taxonomy import')) {
 			if (!is_object($account)) {
 				$account = user_load($uid);
-      			return (is_object($account) && $account->status);
+        return (is_object($account) && $account->status);
 			}
 			else
 				return FALSE;
@@ -133,7 +133,7 @@ function cmis_taxonomy_access($account) {
 function cmis_taxonomy_requirements($phase) {
 	global $conf;
 	$requirements['cmis_taxonomy'] = array('value' => '','description' =>'','severity' => '');
-	
+
 	if (!module_exists('cmis'))
 		$requirements['cmis_taxonomy']['value'] = l('Missing CMIS Not Installed or Enabled of Configured', 'admin/modules/cmis');
 	if (!module_exists('cmis_taxonomy'))
@@ -150,7 +150,7 @@ function cmis_taxonomy_requirements($phase) {
 					}
 				}
 			}
-		}	
+		}
 		else {
 			$requirements['cmis_taxonomy']['value'] = l('Missing Global Configuration', 'admin/settings/cmis_taxonomy');
 			$requirements['cmis_taxonomy']['description'] = t('Missing Global Configuration Array \'cmis_taxonomy\' in settings.php');
@@ -162,7 +162,7 @@ function cmis_taxonomy_requirements($phase) {
 		$requirements['cmis_taxonomy']['description'] = t('Missing Global Configuration Array \'cmis_taxonomy\' in settings.php');
 		$requirements['cmis_taxonomy']['severity'] = ($phase == 'runtime') ? REQUIREMENT_WARNING : REQUIREMENT_ERROR;
 	}
-	
+
 	$requirements['cmis_taxonomy']['value'] = t('Installed CMIS Taxonomy');
 	return $requirements;
 }
@@ -218,7 +218,7 @@ function cmis_taxonomy_menu() {
     'page callback'    => 'cmis_taxonomy_vocabulary',
     'access arguments' => array('cmis_taxonomy'),
 	'file'             => 'cmis_taxonomy.admin.inc',
-	'type'             => MENU_NORMAL_ITEM,    
+	'type'             => MENU_NORMAL_ITEM,
   );
   $items['admin/cmis/cmis_taxonomy/vocabulary'] = array(
 	'title'			   => t('CMIS Vocabulary Mapping'),
@@ -226,7 +226,7 @@ function cmis_taxonomy_menu() {
     'page callback'    => 'cmis_taxonomy_vocabulary',
     'access arguments' => array('cmis_taxonomy'),
 	'file'             => 'cmis_taxonomy.admin.inc',
-	'type'             => MENU_NORMAL_ITEM,    
+	'type'             => MENU_NORMAL_ITEM,
   );
   $items['admin/cmis/cmis_taxonomy/vocabulary/edit/%'] = array(
 	'title'			   => t('CMIS Vocabulary Edit'),
@@ -236,19 +236,19 @@ function cmis_taxonomy_menu() {
     'access callback'  => array('cmis_taxonomy_vocabulary_access'),
     'access arguments' => array(5),
 	'file'             => 'cmis_taxonomy.admin.inc',
-	'type'             => MENU_NORMAL_ITEM,    
+	'type'             => MENU_NORMAL_ITEM,
   );
   $items['admin/cmis/cmis_taxonomy'] = array(
     'title'            => t('CMIS Taxonomy'),
     'description'      => t('Module to import CMIS Category/Tag data from CMIS Repository into Drupal Taxonomy Vocabulary Terms.'),
     'page callback'    => 'cmis_taxonomy_import_landing',
-    'access arguments' => array('cmis_taxonomy'), 
+    'access arguments' => array('cmis_taxonomy'),
   );
   $items['admin/cmis/cmis_taxonomy/cmis_taxonomy_import'] = array(
 	'title'            => t('Import CMIS Category/Tag data'),
 	'description'      => t('Import CMIS Category/Tag data from CMIS Repository into Drupal Taxonomy Vocabulary Terms.'),
 	'page callback'    => 'cmis_taxonomy_import_batch',
-	'access arguments' => array('cmis_taxonomy import'), 
+	'access arguments' => array('cmis_taxonomy import'),
 	'type' 			   => MENU_CALLBACK,
   );
   return $items;
@@ -277,8 +277,8 @@ function cmis_taxonomy_import_landing() {
 	$ret .= "<p>".l('Check CMIS Taxonomy Settings', 'admin/config/cmis/cmis_taxonomy')."</p>"."\n";
 	$ret .= "<p>".l('CMIS Vocabulary Mapping', 'admin/cmis/cmis_taxonomy/vocabulary').'</p>'."\n";
 	$ret .= "<p>".l('Import CMIS Category/Tag data from CMIS Repository into Drupal Taxonomy', 'admin/cmis/cmis_taxonomy/cmis_taxonomy_import').'</p>'."\n";
-	$ret .= "<p>".date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME'])."</p>"."\n";  
-  
+	$ret .= "<p>".date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME'])."</p>"."\n";
+
   	$header = array(
 		array('data' => 'CMIS Taxonomy', 'field' => 'cmis_name', 'sort' => 'ASC'),
 		array('data' => 'Drupal Taxonomy', 'field' => 'cmis_drupal_name', 'sort' => 'ASC'),
@@ -359,10 +359,10 @@ function cmis_taxonomy_import($cron,&$context) {
 	module_load_include('api.inc', 'cmis');
 	module_load_include('php', 'taxonomy', 'taxonomy.api');
 	module_load_include('cmis.inc', 'cmis_taxonomy');
-	
+
 	$batch_limit = CMIS_TAXONOMY_IMPORT_BATCH_LIMIT;
 	$cmis_taxonomy = $conf['cmis_taxonomy']['taxonomy'];
-	
+
 	foreach($cmis_taxonomy as $taxonomy_type => $taxonomy) {
 		if (!array_key_exists('enabled',$taxonomy)) {
 			$error = TRUE;
@@ -379,7 +379,7 @@ function cmis_taxonomy_import($cron,&$context) {
 			}
 		}
 	}
-	
+
 	foreach($cmis_taxonomy as $taxonomy_type => $taxonomy_setting) {
 		if($taxonomy_setting['enabled'] == TRUE) {
 			# merge default settings for the $taxonomy
@@ -444,7 +444,7 @@ function cmis_taxonomy_import($cron,&$context) {
 						#$context['sandbox'][$taxonomy_type]['maxItems'] = $taxonomy_setting['maxItems'];
 						$context['results'][$taxonomy_type]['numItems'] = $cmis_taxonomy->numItems;
 					}
-							
+
 					do {
 						$reached_threshold = FALSE;
 						if ($term_ctr <= $cmis_taxonomy->numItems) {
@@ -463,7 +463,7 @@ function cmis_taxonomy_import($cron,&$context) {
 						else
 							$reached_threshold = TRUE;
 					} while ( !$reached_threshold ) ;
-							
+
 					if ($context['sandbox']['progress'] >= $context['sandbox']['max']) {
 						$context['finished'] = ((int)$context['sandbox']['progress'] / (int)$context['sandbox']['max']);
 					} else {
@@ -539,7 +539,7 @@ function cmis_taxonomy_check($cmis_taxonomy, $taxonomy_setting, &$context) {
 
 /**
 * Creates a new vocabulary
-* 
+*
 * @param  $cmis_taxonomy
 * @param  $vname
 * @return $vocab
@@ -558,7 +558,7 @@ function cmis_taxonomy_vocabulary_create($cmis_taxonomy, $vname) {
 
 /**
 * Check if we need to update the term or create a new one for the given Vocabulary set
-* 
+*
 * @param  $cmis_taxonomy
 * @param  $vocab
 * @param  $taxonomy_setting
@@ -591,7 +591,7 @@ function cmis_taxonomy_term_check($cmis_taxonomy, $vocab, $taxonomy_setting, &$c
 			$cmis_term->vid = $vocab->vid;
 			$cmis_term->name = $cmis_term->properties['cmis:name'];
 			$cmis_term->description = trim($cmis_term->properties['cmis:description']);
-			
+
 			$tid = cmis_taxonomy_term_create($cmis_term);
 			$context['results'][$taxonomy_setting['cmis_tagorcat']]['new_term_tids'][$k] = $tid;
 			$term = taxonomy_term_load($tid);
@@ -604,7 +604,7 @@ function cmis_taxonomy_term_check($cmis_taxonomy, $vocab, $taxonomy_setting, &$c
 
 /**
 * Creates a new taxonomy
-* 
+*
 * @param  $cmis_taxonomy
 * @return $termid
 */
@@ -620,7 +620,7 @@ function cmis_taxonomy_term_create($cmis_term) {
 		#$term->field_category_objid[LANGUAGE_NONE][0]['value'] = $cmis_term->field_category_objid;
 		#if(is_object($cmis_term->parent) && !empty($cmis_term->parent))
 			#$term->parent = (array) $cmis_term->parent;
-		
+
 		taxonomy_term_save($term);
 		return $term->tid;
 	}
@@ -630,7 +630,7 @@ function cmis_taxonomy_term_create($cmis_term) {
 
 /**
 * Update an existing taxonomy
-* 
+*
 * @param  $cmis_term
 * @return $term->tid
 */
@@ -647,7 +647,7 @@ function cmis_taxonomy_term_update($cmis_term) {
 		#$term->field_category_objid[LANGUAGE_NONE][0]['value'] = $cmis_term->field_category_objid;
 		#if(is_object($cmis_term->parent) && !empty($cmis_term->parent))
 			#$term->parent = (array) $cmis_term->parent;
-		
+
 		taxonomy_term_save($term);
 		return $term->tid;
 	}
@@ -719,7 +719,7 @@ function cmis_taxonomy_import_show_results($success, $results, $operations) {
 		$message .= "<pre>results:".print_r($results,1)."</pre>";
 	}
 	if ($success)
-		$message .= 'Imported Successfully with results <pre>'.print_r($results, 1).'</pre>';  
+		$message .= 'Imported Successfully with results <pre>'.print_r($results, 1).'</pre>';
 	else {
 		foreach($results as $k => $v)
 			$message .= t('An error occurred while processing @operation for @error_operation', array('@operation' => $results[$k], '@error_operation' => print_r($v, 1)));
@@ -731,18 +731,19 @@ function cmis_taxonomy_import_show_results($success, $results, $operations) {
 /**
  * Implementation of hook_cron
  *
-  
+ */
+/*
 function cmis_taxonomy_cron() {
   global $user;
   if (variable_get('cmis_taxonomy_enabled', FALSE)) {
-	drupal_flush_all_caches();
+    drupal_flush_all_caches();
     module_load_include('cmis.inc', 'cmis_taxonomy');
     try {
-	  cmis_taxonomy_import_batch(TRUE);
+      cmis_taxonomy_import_batch(TRUE);
     }
     catch (CMISException $e) {
       cmis_error_handler('cmis_taxonomy', $e);
-	  watchdog('cmis_taxonomy_cron', "CMIS Sync Error: @list", array('@list' => implode(", ", array_keys($e))), WATCHDOG_WARNING);
+      watchdog('cmis_taxonomy_cron', "CMIS Sync Error: @list", array('@list' => implode(", ", array_keys($e))), WATCHDOG_WARNING);
     }
   }
 }

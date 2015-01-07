@@ -96,13 +96,13 @@ function cmis_sync_update_7001() {
   foreach ($fields as $f => $field)  {
     if (!db_field_exists('cmis_sync_node', $f)) {
       db_add_field('cmis_sync_node', $f, $field);
-	  $mess .= 'Database column <pre>'.$f.'<pre> Added \n <br/>';
-	  foreach ($indexes as $i => $index)  {
-		if (!db_index_exists('cmis_sync_node', $i)) {
-		  db_add_index('cmis_sync_node', $i, array($f));
-		  $mess .= 'With Index <pre>'.$i.'<pre> for field <pre>'.$f.'<pre> Added \n <br/>';
-		}
-	  }
+      $mess .= 'Database column <pre>'.$f.'<pre> Added \n <br/>';
+      foreach ($indexes as $i => $index)  {
+        if (!db_index_exists('cmis_sync_node', $i)) {
+          db_add_index('cmis_sync_node', $i, array($f));
+          $mess .= 'With Index <pre>'.$i.'<pre> for field <pre>'.$f.'<pre> Added \n <br/>';
+        }
+      }
     }
   }
   return t($mess);

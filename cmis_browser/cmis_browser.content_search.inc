@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 function cmis_browser_search($term, $path){
   module_load_include('api.inc', 'cmis');
@@ -7,7 +7,7 @@ function cmis_browser_search($term, $path){
   $parts = explode('/', $_GET['q']);
   $path = implode('/', array_slice($parts, 4));
   $args = func_get_args();
-    
+
   try {
     $repository = cmis_get_repository();
     $folder_object = cmisapi_getObjectByPath($repository->repositoryId, '/'.$path);
@@ -20,8 +20,7 @@ function cmis_browser_search($term, $path){
           sprintf('SELECT * FROM %s WHERE IN_TREE(\'%s\') AND (cmis:name like \'%s\' OR CONTAINS(\'%s\'))',
                   $cmis_base_type, $folder_object->id, '%'. $term .'%', $term)
           //Only children of the current folder
-/*          sprintf('SELECT * FROM %s WHERE IN_TREE(\'%s\') AND (cmis:name like \'%s\' OR CONTAINS(\'%s\'))',
-                  $cmis_base_type, $folder_object->id, '%'. $term .'%', $term)*/
+          #sprintf('SELECT * FROM %s WHERE IN_TREE(\'%s\') AND (cmis:name like \'%s\' OR CONTAINS(\'%s\'))', $cmis_base_type, $folder_object->id, '%'. $term .'%', $term)
         );
       }
       catch (CMISException $e) {

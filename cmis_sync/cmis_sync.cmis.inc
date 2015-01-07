@@ -8,7 +8,7 @@ function _cmis_sync_cmis_drupal_update($context = array(), $user) {
 	module_load_include('inc', 'node', 'node.pages');
 	global $conf;
 	$sync_map = $conf['cmis_sync_map'];
-	
+
 	foreach ($sync_map as $node_type => $sync_map_type) {
 		// check if sync is enabled for this Drupal content type
 		if (!array_key_exists('enabled',  $sync_map_type) || !$sync_map_type['enabled']) {
@@ -29,7 +29,7 @@ function _cmis_sync_cmis_drupal_update($context = array(), $user) {
 			'deletes' => FALSE,
 			'cmis_sync_cron' => FALSE,
 		);
-		
+
 		try {
 			// lookup CMIS repository
 			$repository = cmis_get_repository($sync_map_type['cmis_repositoryId']);
@@ -80,7 +80,7 @@ function _cmis_sync_cmis_drupal_handle_updates($repository, $sync_map_type, $nod
 				$need_cm_taggable = TRUE;
 		}
 	}
-	
+
 	//Construct CMIS SQL Query
 	$cmis_query = 'SELECT ';
 	$from = ' FROM ';
@@ -92,31 +92,31 @@ function _cmis_sync_cmis_drupal_handle_updates($repository, $sync_map_type, $nod
 	$where = ' WHERE ';
 	$sync_subfolders_rule = $sync_map_type['subfolders'] ? ' IN_TREE ' : ' IN_FOLDER ';
 	$sync_full_rule = (($sync_map_type['cmis_sync_cron'] === TRUE) ? ' ' : sprintf(' AND d.cmis:lastModificationDate >= \'%s\'', date_create('12 hour ago')->format('Y-m-d\TH:i:s.000-00:00')));
-	
+
 	if($need_cm_generalclassifiable) {
 		$d = ' d, ';
 		$join .= ' JOIN cm:generalclassifiable AS c ON d.cmis:objectId = c.cmis:objectId ';
 	}
-	
+
 	if($need_cm_taggable) {
 		$d = ' d, ';
 		$join .= ' JOIN cm:taggable as tg ON d.cmis:objectId = tg.cmis:objectId ';
 	}
-	
+
 	if($need_cm_titled) {
 		$d = ' d, ';
 		$join .= ' JOIN cm:titled AS t ON d.cmis:objectId = t.cmis:objectId ';
 	}
-	
+
 	$orderby = ' ORDER BY cmis:name ASC ';
-	
+
 	$cmis_query = $cmis_query . $tablestar . $from . $table . $as . $join . $where . $sync_subfolders_rule . sprintf(' (%s \'%s\') ', $d ,$cmis_folder->id) .$sync_full_rule.$orderby;
 	#print "<pre>cmis_query : ".$cmis_query."</pre>";
-	
+
 	$cmis_updates = cmisapi_query($repository->repositoryId, $cmis_query, $options = array('renditionFilter' => $sync_map_type['renditionFilter'], 'maxItems' => $sync_map_type['maxItems']));
 	#print "<pre>cmis_updates : ".print_r($cmis_updates,1)."</pre>";
 	#exit;
-	
+
 	if(is_object($cmis_updates) && ($cmis_updates->numItems > 0)) {
 		foreach ($cmis_updates->objectList as $cmis_update) {
 			#$renditions = cmisapi_getRenditions($repository->repositoryId, $cmis_update->properties['cmis:objectId'], $options = array('renditionFilter' => "cmis:thumbnail,alf:webpreview"));
@@ -126,30 +126,30 @@ function _cmis_sync_cmis_drupal_handle_updates($repository, $sync_map_type, $nod
 				foreach($cmis_update->renditions as $k => $v) {
 					$thumb_binary = cmisapi_getContentStream($repository->repositoryId, $cmis_update->renditions[$k]['streamId']);
 					$cmis_update->properties["cmis:linkimage"] = l(
-						'<img width="'.$cmis_update->renditions[$k]['width'].'" alt="'.$cmis_update->properties['cmis:name'].'" src="data:'.$cmis_update->renditions[$k]['mimetype'].';base64,'.base64_encode($thumb_binary).'" class="renditionthumbnail '.$cmis_update->renditions[$k]['kind'].'" id="'.$cmis_update->renditions[$k]['renditionDocumentId'].'" height="'.$cmis_update->renditions[$k]['height'].'">', 
-          				$base_url . '/cmis/browser', 
+						'<img width="'.$cmis_update->renditions[$k]['width'].'" alt="'.$cmis_update->properties['cmis:name'].'" src="data:'.$cmis_update->renditions[$k]['mimetype'].';base64,'.base64_encode($thumb_binary).'" class="renditionthumbnail '.$cmis_update->renditions[$k]['kind'].'" id="'.$cmis_update->renditions[$k]['renditionDocumentId'].'" height="'.$cmis_update->renditions[$k]['height'].'">',
+          				$base_url . '/cmis/browser',
 						array(
 							  'attributes' => array(
-								'id' => 'cmislink_'.$cmis_update->renditions[$k]['renditionDocumentId'], 
+								'id' => 'cmislink_'.$cmis_update->renditions[$k]['renditionDocumentId'],
 								'class' => 'cmislink'
-							  ), 
+							  ),
 							  'query' => array(
 								'id' => $cmis_update->properties['cmis:versionSeriesId']
-							  ), 
+							  ),
 							  'fragment' => $_SERVER['REQUEST_TIME'],
 							  'html' => TRUE
 							)
 						);
-					
+
 					$thumb_binary = NULL;
 				}
 			}
 			#print "<pre>cmis_categories : ".print_r($cmis_update->properties['cm:categories'],1)."</pre>";
 			#print "<pre>cmis_taggable : ".print_r($cmis_update->properties['cm:taggable'],1)."</pre>";
-		
+
 			// build/lookup Drupal node
 			$drupal_node = _cmis_sync_cmis_drupal_prepare($repository, $sync_map_type, $node_type, $cmis_update,$user);
-			
+
 			// unable to map current CMIS object to any Drupal content type
 			if (FALSE === $drupal_node) {
 				watchdog('cmis_sync', 'Unable to map current CMIS object to any Drupal content type @cmis - @code - @message', array('@cmis'=>print_r($cmis_update,1), '@code'=>$e->getCode(), '@message'=>$e->getMessage()), WATCHDOG_WARNING);
@@ -195,7 +195,7 @@ function _cmis_sync_cmis_drupal_handle_updates($repository, $sync_map_type, $nod
 		}
 	}
 	else
-		watchdog('cmis_sync', 'No CMIS data exists', array('@cmis_updates' => $cmis_updates), WATCHDOG_WARNING, NULL);		
+		watchdog('cmis_sync', 'No CMIS data exists', array('@cmis_updates' => $cmis_updates), WATCHDOG_WARNING, NULL);
 }
 
 /**
@@ -208,7 +208,7 @@ function _cmis_sync_cmis_drupal_handle_deletes($repository, $sync_map_type, $nod
 	// get node list
 	$cmis_nodes = array();
 	$sync_nodes = db_query('SELECT nid, cmis_objectId FROM {cmis_sync_node} WHERE cmis_repositoryId = :repo', array(':repo' => $repository->repositoryId));
-	
+
 	if ($sync_nodes->rowCount()) {
 		foreach ($sync_nodes as $sync_node) {
 			if (node_load($sync_node->nid)->type == $node_type) {
@@ -227,7 +227,7 @@ function _cmis_sync_cmis_drupal_handle_deletes($repository, $sync_map_type, $nod
 				}
 			}
     	}
-		
+
 		if (count($cmis_nodes)) {
 			// delete CMIS - Drupal reference
 			db_delete('cmis_sync_node')
@@ -303,7 +303,7 @@ function _cmis_sync_cmis_drupal_prepare($repository, $sync_map_type, $node_type,
 		}
 		// map cmis properties to drupal node fields
 		foreach ($sync_map_type['fields'] as $node_field => $cmis_field) {
-			$text_format = isset($cmis_field['text_format']) ? $cmis_field['text_format'] : filter_default_format(); 	
+			$text_format = isset($cmis_field['text_format']) ? $cmis_field['text_format'] : filter_default_format();
 			if (is_string($cmis_field)) {
 				$node = _cmis_sync_drupal_node_field_set($node, $node_field, $cmis_object->properties[$cmis_field],$text_format);
 			}
@@ -323,14 +323,14 @@ function _cmis_sync_cmis_drupal_prepare($repository, $sync_map_type, $node_type,
 				throw new CMISException(t('Unknown field map type. Expects "string" or "array". Received "@type"', array('@type' => gettype($cmis_field))));
 			}
 		}
-		
+
 		// load content field
 		if (array_key_exists('content_field', $sync_map_type)) {
 			$text_format = isset($sync_map_type['content_format']) ? $sync_map_type['content_format'] : 'full_html';
 			#$cmis_content_context['file'] = array('mime' => $cmis_object->properties['cmis:contentStreamMimeType']);
 			if(in_array($cmis_object->properties['cmis:contentStreamMimeType'], $drupal_mime ,TRUE)) {
 				try {
-					$content_stream = cmisapi_getContentStream($repository->repositoryId,$cmis_object->properties['cmis:versionSeriesId']);  
+					$content_stream = cmisapi_getContentStream($repository->repositoryId,$cmis_object->properties['cmis:versionSeriesId']);
 					$node = _cmis_sync_drupal_node_field_set($node,$sync_map_type['content_field'], $content_stream, $text_format);
 				}
 				catch (CMISException $e) {
@@ -339,7 +339,7 @@ function _cmis_sync_cmis_drupal_prepare($repository, $sync_map_type, $node_type,
 						array('@nid'=>$node->nid, '@title'=>$node->title, '@code'=>$e->getCode(), '@message'=>$e->getMessage()), WATCHDOG_WARNING);
 					else
 						watchdog('cmis_sync', 'Error retrieving content for node #@objid - @code - @message',
-						array('@objid'=>$cmis_object->properties['cmis:versionSeriesId'], '@code'=>$e->getCode(), '@message'=>$e->getMessage()), WATCHDOG_WARNING);			 
+						array('@objid'=>$cmis_object->properties['cmis:versionSeriesId'], '@code'=>$e->getCode(), '@message'=>$e->getMessage()), WATCHDOG_WARNING);
 				}
 			}
 			else {
@@ -348,7 +348,6 @@ function _cmis_sync_cmis_drupal_prepare($repository, $sync_map_type, $node_type,
 						array('content_field' => $sync_map_type['content_field'], '@objid'=>$cmis_object->properties['cmis:versionSeriesId'], '@mime'=>$cmis_object->properties['cmis:contentStreamMimeType']), WATCHDOG_WARNING);
 			}
 		}
-
 		// call hook_sync_cmis_drupal_prepare() hooks
 		module_invoke_all('sync_cmis_drupal_prepare', $cmis_object, $node);
 		node_object_prepare($node);
@@ -359,7 +358,7 @@ function _cmis_sync_cmis_drupal_prepare($repository, $sync_map_type, $node_type,
 
 /**
 * Creates a new node according to the content type definition
-* 
+*
 * @param  $type
 * @return new node
 */

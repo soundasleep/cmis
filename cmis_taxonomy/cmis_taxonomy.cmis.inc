@@ -25,7 +25,7 @@ function cmis_taxonomy_obj($repository, $taxonomy, $cmis_obj, &$context) {
 		$tagorcat_rule = ' IN_TREE ';
   	}
   	$cmis_taxonomy_cron = $taxonomy['cmis_taxonomy_cron'] ? sprintf(' AND c.cmis:lastModificationDate >= \'%s\'', date_create('12 hour ago')->format('Y-m-d\TH:i:s.000-00:00')) : ' ' ;
-    
+
 	$cmis_query = $cmis_query . $tablestar . $from . $table . $as . $join . $where . $tagorcat_rule . sprintf(' (\'%s\') ', $cmis_obj->id) .$cmis_taxonomy_cron;
 	#print "<pre>".$cmis_query."</pre>";
 	#watchdog('cmis_taxonomy', 'CMIS SQL Query: @query', array('@query' => print_r($cmis_query,1)), WATCHDOG_ERROR, NULL);
@@ -33,17 +33,17 @@ function cmis_taxonomy_obj($repository, $taxonomy, $cmis_obj, &$context) {
 	$cmis_taxonomy = cmisapi_query($repository->repositoryId, $cmis_query, $options = array('maxItems' => $taxonomy['maxItems']));
 	#print "<pre>".print_r($cmis_taxonomy,1)."</pre>";
 	#watchdog('cmis_taxonomy', 'CMIS Obj data: @cmis_taxonomy', array('@cmis_taxonomy' => print_r($cmis_taxonomy,1)), WATCHDOG_ERROR, NULL);
-	
+
 	if(is_object($cmis_taxonomy) && ($cmis_taxonomy->numItems > 0)) {
-		#foreach ($cmis_taxonomy->objectList as $cmis_term) {
-			#print "<pre>".print_r($cmis_term,1)."</pre>";
-			#watchdog('cmis_taxonomy', 'CMIS Obj data: @cmis_term', array('@cmis_term' => print_r($cmis_term,1)), WATCHDOG_ERROR, NULL);
+		  #foreach ($cmis_taxonomy->objectList as $cmis_term) {
+			 #print "<pre>".print_r($cmis_term,1)."</pre>";
+			 #watchdog('cmis_taxonomy', 'CMIS Obj data: @cmis_term', array('@cmis_term' => print_r($cmis_term,1)), WATCHDOG_ERROR, NULL);
 	  	#}
-		return $cmis_taxonomy;
+      return $cmis_taxonomy;
   	}
   	else {
   		watchdog('cmis_taxonomy', 'No CMIS Tag/Category data exists for @cmis_obj and returned Error: @cmis_taxonomy', array('@cmis_obj' => print_r($cmis_obj,1), '@cmis_taxonomy' => print_r($cmis_taxonomy,1)), WATCHDOG_ERROR, NULL);
-		return FALSE;
+      return FALSE;
   	}
 }
 
@@ -66,7 +66,7 @@ function cmis_taxonomy_terms_obj($repository, $taxonomy, $cmis_objectId, &$conte
 	$where = ' WHERE ';
 	$tree = ' IN_TREE ';
   	$cmis_taxonomy_cron = $taxonomy['cmis_taxonomy_cron'] ? sprintf(' AND c.cmis:lastModificationDate >= \'%s\'', date_create('12 hour ago')->format('Y-m-d\TH:i:s.000-00:00')) : ' ' ;
-    
+
 	$cmis_query = $cmis_query . $tablestar . $from . $table . $as . $join . $where . $tree . sprintf(' (\'%s\') ', $cmis_objectId);
 	#print "<pre>cmis_query : ".$cmis_query."</pre>";
 	$cmis_terms = cmisapi_query($repository, $cmis_query, $options = array('maxItems' => $taxonomy['maxItems']));
@@ -97,7 +97,7 @@ function cmis_taxonomy_drupal_delete($repository, $taxonomy, $taxonomy) {
 		foreach ($cmis_taxonomy as $cmis_tax) {
 			if (taxonomy_load($cmis_tax->tid)) {
 				$cmis_taxonomies[$cmis_tax->cmis_objectId] = $cmis_tax->tid;
-    		}
+    	}
 		}
 		// identify existing CMIS objects
 		if (array_keys($cmis_taxonomies)) {
@@ -114,11 +114,10 @@ function cmis_taxonomy_drupal_delete($repository, $taxonomy, $taxonomy) {
 				->condition('tid', array_values($cmis_taxonomies), 'IN')
 				->execute();
 		  	// delete Drupal Taxonomy
-		  	foreach ($cmis_taxonomies as $cmis_objectId => $drupal_tid) {
-				taxonomy_delete($drupal_tid);
-		  	}
+		  foreach ($cmis_taxonomies as $cmis_objectId => $drupal_tid) {
+        taxonomy_delete($drupal_tid);
+		  }
 		}
 	}
 }
-
 ?>

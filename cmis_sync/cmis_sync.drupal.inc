@@ -32,8 +32,8 @@ function _cmis_sync_drupal_cmis_update($node, $op) {
 		module_load_include('api.inc', 'cmis');
 		$cmis_object = _cmis_sync_drupal_cmis_prepare($node);
 		if(!array_key_exists($node->type,$cmis_node) && ($cmis_node[$node->type] === FALSE)) {
-			watchdog('cmis_sync', 'Node @nid based on @nodetype Cannot perform operation: {@op} 
-			on the CMIS Repository as {Drupal to CMIS} is set FALSE', 
+			watchdog('cmis_sync', 'Node @nid based on @nodetype Cannot perform operation: {@op}
+			on the CMIS Repository as {Drupal to CMIS} is set FALSE',
 			array('@nid' => $node->nid, '@nodetype' => $node->nodetype, '@op' => $op), WATCHDOG_INFO, NULL);
 			return;
 		}
@@ -51,7 +51,7 @@ function _cmis_sync_drupal_cmis_update($node, $op) {
 									'cmis_objectId' => $new_cmis_object->properties['cmis:versionSeriesId'],
 									'cmis_versionLabel' => $new_cmis_object->properties['cmis:versionLabel'],
 									'changed_timestamp' => $_SERVER['REQUEST_TIME'],
-									))->execute();
+								))->execute();
 								watchdog('cmis_sync', 'Synced @nid', array('@nid' => $node->nid));
 							}
 						}
@@ -102,7 +102,7 @@ function _cmis_sync_drupal_cmis_update($node, $op) {
 									}
 									else
 										watchdog('cmis_sync', 'cmis_sync_nodeapi sync_deletes Not Supported: @e', array('@e' => print_r($e,1)), WATCHDOG_WARNING, NULL);
-									
+
 									// delete sync refs
 									db_delete('cmis_sync_node')
 									->condition('nid', $node->nid)
@@ -198,8 +198,7 @@ function _cmis_sync_drupal_cmis_prepare($node) {
         $cmis_object->properties[$cmis_field['cmis']] = _cmis_sync_drupal_node_field_value($node, $cmis_field['drupal']);
       }
       else {
-        throw new CMISException(t('Unknown field map type. Expects "string" or "array". Received @type',
-                                  array('@type' => gettype($cmis_field))));
+        throw new CMISException(t('Unknown field map type. Expects "string" or "array". Received @type', array('@type' => gettype($cmis_field))));
       }
     }
 
@@ -320,13 +319,13 @@ function _cmis_sync_drupal_node_field_value(&$node, $field_name, $text_format = 
 					break;
 			}
 			return $field_value;
-		}	
+		}
 		else {
 			if (array_key_exists($field_name, $node))
 				return utf8_encode($node->{$field_name});
 			return $field_value;
 		}
-    } 
+  }
 	else
 		return $field_value;
 }
@@ -452,7 +451,7 @@ function _cmis_sync_drupal_node_field_set(&$node, $field_name, $field_value = NU
 				$node->title = utf8_encode(trim($field_value));
 			else
 				$node->{$field_name} = utf8_encode(trim($field_value));
-			
+
 			watchdog('cmis_sync', 'Drupal field [@field_name] not present in Node Field Entity', array('@field_name' => $field_name), WATCHDOG_INFO, NULL);
 			return $node;
 		}
@@ -462,4 +461,5 @@ function _cmis_sync_drupal_node_field_set(&$node, $field_name, $field_value = NU
 		return NULL;
 	}
 }
+
 ?>

@@ -25,21 +25,21 @@ function cmis_taxonomy_schema() {
     'fields' => array(
       'cmistxid'  => array(
 	    'type' => 'serial',
-		'unsigned' => TRUE, 
+		'unsigned' => TRUE,
 	  	'not null' => TRUE,
 		'description' => t('Primary Key: Unique ID.')
 	  ),
       'vid' => array(
 	  	'type' => 'int',
-		'unsigned' => TRUE, 
-		'not null' => TRUE, 
+		'unsigned' => TRUE,
+		'not null' => TRUE,
 		'default' => 0,
 		'description' => t('Vocabulary ID from Drupal')
 	  ),
 	  'tid' => array(
 	  	'type' => 'int',
-		'unsigned' => TRUE, 
-		'not null' => TRUE, 
+		'unsigned' => TRUE,
+		'not null' => TRUE,
 		'default' => 0,
 		'description' => t('Taxonomy ID from Drupal')
 	  ),
@@ -110,19 +110,19 @@ function cmis_taxonomy_schema() {
     ),
     'primary key' => array('cmistxid'),
   );
-  
+
   $schema['cmis_vocab'] = array(
     'fields' => array(
       'cmis_vid'  => array(
 	    'type' => 'serial',
-		'unsigned' => TRUE, 
+		'unsigned' => TRUE,
 	  	'not null' => TRUE,
 		'description' => t('Primary Key: Unique ID.')
 	  ),
       'vid' => array(
 	  	'type' => 'int',
-		'unsigned' => TRUE, 
-		'not null' => TRUE, 
+		'unsigned' => TRUE,
+		'not null' => TRUE,
 		'default' => 0,
 		'description' => t('Vocabulary ID from Drupal')
 	  ),
@@ -171,11 +171,13 @@ function cmis_taxonomy_schema() {
     ),
     'primary key' => array('cmis_vid'),
   );
+
   db_update('system')
-      ->expression('weight', ':weight', array(':weight' => 5))
-      ->condition('name', 'cmis_taxonomy')
-      ->condition('type', 'module')
-      ->execute();
+    ->expression('weight', ':weight', array(':weight' => 5))
+    ->condition('name', 'cmis_taxonomy')
+    ->condition('type', 'module')
+    ->execute();
+
   return $schema;
 }
 

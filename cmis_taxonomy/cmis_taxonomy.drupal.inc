@@ -9,6 +9,7 @@ define('CMIS_SPACESTORE', 'workspace://SpacesStore/');
  * @param $field_value
  * @param $text_format
  * @return &$node reference
+ * @todo Simplify the looping code to make it work with tags/categories in a single loop as opposed to two seperate ones
  */
 function cmis_taxonomy_lookup(&$node, $field_name = 'tags', $field_value = NULL) {
 	$terms = NULL;
@@ -53,26 +54,26 @@ function cmis_taxonomy_lookup(&$node, $field_name = 'tags', $field_value = NULL)
 				$str=NULL;
 				foreach ($vids as $k => $vid) {
 				    if (!empty($vids[$k])) {
-						$str = NULL;
-						$str = "".$vids[$k]."";//Convert to string
-						if (strpos($field_name, $str)!== false) {
-							#print "<pre>vidterms : ".print_r($terms[$vids[$k]],1)."</pre>";
-							if(is_array($terms[$vids[$k]]) && !empty($terms[$vids[$k]])) {
-								foreach($terms[$vids[$k]] as $key => $value) {
-									$node->{$field_name}[LANGUAGE_NONE][$key]['tid'] = $value;
-								}
-							}
-						}
-					}
-				}
-			}
-			else
-				unset($node->{$field_name});
-		}
-		else
-			unset($node->{$field_name});
-	}
-	return $node;
+              $str = NULL;
+              $str = "".$vids[$k]."";//Convert to string()   (str) does not work give php errors
+              if (strpos($field_name, $str)!== false) {
+                #print "<pre>vidterms : ".print_r($terms[$vids[$k]],1)."</pre>";
+                if(is_array($terms[$vids[$k]]) && !empty($terms[$vids[$k]])) {
+                  foreach($terms[$vids[$k]] as $key => $value) {
+                    $node->{$field_name}[LANGUAGE_NONE][$key]['tid'] = $value;
+                  }
+                }
+              }
+            }
+          }
+        }
+        else
+          unset($node->{$field_name});
+      }
+      else
+        unset($node->{$field_name});
+    }
+    return $node;
 }
 
 /**

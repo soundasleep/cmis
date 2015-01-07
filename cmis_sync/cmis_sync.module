@@ -4,10 +4,10 @@
  * Config sample:
  * Run CMIS Sync Help <a href='admin/help#cmis_sync'>admin/help#cmis_sync</a>
  *
- * 
+ *
  *
  */
-// Batch limit for csv processing in 'cmis_sync_import'
+// Batch limit for processing in 'cmis_sync_import'
 define('CMIS_SYNC_IMPORT_BATCH_LIMIT', 100);
 
 // Step by step debug in all functions 'CMIS_SYNC_IMPORT_DEBUG':
@@ -58,7 +58,7 @@ function cmis_sync_access($account) {
 		else if (user_access('cmis_sync cron')) {
 			if (!is_object($account)) {
 				$account = user_load($uid);
-      			return (is_object($account) && $account->status);
+        return (is_object($account) && $account->status);
 			}
 			else
 				return FALSE;
@@ -80,15 +80,15 @@ function cmis_sync_menu() {
     'title' => t('CMIS Sync Settings'),
     'description'      => 'CMIS Sync import Settings',
     'page callback'    => 'cmis_sync_admin_settings',
-	'type'             => MENU_NORMAL_ITEM,
-	'access arguments' => array('cmis_sync'),
+    'type'             => MENU_NORMAL_ITEM,
+    'access arguments' => array('cmis_sync'),
   );
   $items['admin/cmis/cmis_sync'] = array(
     'title'            => t('CMIS Sync'),
     'description'      => t('Module to import CMIS Document data from CMIS Repository into a Drupal Content Types.'),
     'page callback'    => 'cmis_sync_landing',
-	'type'             => MENU_NORMAL_ITEM,
-	'access arguments' => array('cmis_sync'),
+    'type'             => MENU_NORMAL_ITEM,
+    'access arguments' => array('cmis_sync'),
   );
   return $items;
 }
@@ -103,10 +103,10 @@ function cmis_sync_landing() {
   $ret .= l('Check CMIS configuration', 'admin/config/cmis/cmis_sync') . '<br />'."\n";
   $ret .= l('Check PHP CMIS library', 'admin/config/cmis/common') . '<br />'."\n";
   if(module_exists('cmis_sync')) {
-	$ret .= "<p>Please Check Your Global Configuration Settings.PHP file before Importing Data from CMIS Repository</p>"."\n";
-    $ret .= "<p>If you need help on configuration, have a look at the ".l('Help Section', 'admin/help/cmis_sync') . '</p>'."\n"; 
+    $ret .= "<p>Please Check Your Global Configuration Settings.PHP file before Importing Data from CMIS Repository</p>"."\n";
+    $ret .= "<p>If you need help on configuration, have a look at the ".l('Help Section', 'admin/help/cmis_sync') . '</p>'."\n";
   	$ret .= "<p>".l('Check CMIS Sync Settings', 'admin/config/cmis/cmis_sync').'</p>'."\n";
-	$ret .= "<p>".'Import CMIS data from CMIS Repository into Drupal Content Type is done in Cron. Please check permissions before running Cron</p>'."\n";
+    $ret .= "<p>".'Import CMIS data from CMIS Repository into Drupal Content Type is done in Cron. Please check permissions before running Cron</p>'."\n";
   }
   return $ret;
 }
@@ -155,10 +155,10 @@ function cmis_sync_import($cron,&$context) {
 	module_load_include('api.inc', 'cmis');
 	module_load_include('php', 'taxonomy', 'taxonomy.api');
 	module_load_include('cmis.inc', 'cmis_sync');
-	
+
 	$batch_limit = CMIS_SYNC_IMPORT_BATCH_LIMIT;
 	$cmis_sync = $conf['cmis_sync_map'];
-	
+
 	foreach($cmis_sync as $node_type => $document) {
 		if (!array_key_exists('enabled',$document)) {
 			$error = TRUE;
@@ -175,7 +175,7 @@ function cmis_sync_import($cron,&$context) {
 			}
 		}
 	}
-	
+
 	foreach($cmis_sync as $node_type => $document_setting) {
 		if($document_setting['enabled'] == TRUE) {
 			# merge default settings for the $document
@@ -249,7 +249,7 @@ function cmis_sync_import($cron,&$context) {
 						#$context['sandbox'][$node_type]['maxItems'] = $document_setting['maxItems'];
 						$context['results'][$node_type]['numItems'] = $cmis_sync->numItems;
 					}
-							
+
 					do {
 						$reached_threshold = FALSE;
 						if ($term_ctr <= $cmis_sync->numItems) {
@@ -268,7 +268,7 @@ function cmis_sync_import($cron,&$context) {
 						else
 							$reached_threshold = TRUE;
 					} while ( !$reached_threshold ) ;
-							
+
 					if ($context['sandbox']['progress'] >= $context['sandbox']['max']) {
 						$context['finished'] = ((int)$context['sandbox']['progress'] / (int)$context['sandbox']['max']);
 					} else {
@@ -341,8 +341,8 @@ function cmis_sync_setting_validate() {
 	}
 	else
 		drupal_set_message(t('Missing Global Configuration [\'cmis_sync_map\']Array in settings.php'), 'error',FALSE);
-	
-	
+
+
 	/*
 	* Test Code for functions written
 	*/
@@ -372,10 +372,10 @@ function cmis_sync_help($path, $arg) {
 							<li>'field_alf_path' (link) '/cmis/browser?id=[node:field_alf_versionseriesid]' </li>
 							<li>'field_alf_created_by'</li>
 							<li>'field_alf_filesize'</li>
-							<li>'field_alf_renditions'</li>						
+							<li>'field_alf_renditions'</li>
 							<li>'field_alf_tags' (term reference)</li>
 							<li>'field_alf_cat_2' (term reference){Document Classification Vocab}</li>
-							<li>'field_alf_cat_3' (term reference){..... Vocabularies}...etc..</li>						
+							<li>'field_alf_cat_3' (term reference){..... Vocabularies}...etc..</li>
 						</ol>
 					</li>
 					<li> Settings.PHP File : <br/>

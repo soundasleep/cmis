@@ -27,22 +27,23 @@ function cmis_taxonomy_vocabulary(){
 
 	$query->fields('p', array('cmis_vid', 'vid', 'cmis_vname', 'cmis_repositoryId', 'cmis_objectId', 'cmis_exclude','timestamp'))
 		->orderByHeader($header)
-        ->orderBy('timestamp', 'DESC')
-        ->limit(10);
+    ->orderBy('timestamp', 'DESC')
+    ->limit(10);
 	$results = $query->execute();
 
 	$rows = array();
 	foreach ($results as $row) {
 		$rows[] = array("<a href=\"/admin/cmis/cmis_taxonomy/vocabulary/edit/".$row->cmis_vid."\">".$row->cmis_vname."</a>",
-					$row->cmis_repositoryId,
-                    $row->cmis_objectId,
-                    $row->cmis_exclude,
-					date("j F Y", $row->timestamp)
+			$row->cmis_repositoryId,
+      $row->cmis_objectId,
+      $row->cmis_exclude,
+			date("j F Y", $row->timestamp)
 		);
 	}
 	$output = theme('table', array('header' => $header, 'rows' => $rows ));
 	$output .= theme('pager');
 
+  //try and load a form here to directly edit existing data
 	return $output;
 }
 
@@ -56,9 +57,9 @@ function cmis_taxonomy_vocabulary_admin_form($form, &$form_state) {
  * Form validation
  */
 function cmis_taxonomy_vocabulary_admin_form_validate($form, &$form_state){
-    if ($form_state['values']['vocabulary'] == 'no'){
-        form_set_error('vocabulary', '"<b>no</b>" is not a valid answer, try again.');
-    }
+  if ($form_state['values']['vocabulary'] == 'no'){
+    form_set_error('vocabulary', '"<b>no</b>" is not a valid answer, try again.');
+  }
 }
 
 /**
@@ -76,9 +77,9 @@ function cmis_taxonomy_vocabulary_admin_form_submit(&$form, &$form_state){
  */
 function cmis_taxonomy_admin_settings() {
 	$page = array(
-    	'title' => t('Settings.php \'cmis_taxonomy\' Configuration Value Check'),
-    	'description' => t('Global CMIS Taxonomy \'cmis_taxonomy\' Configuration check'),
-    );
+    'title' => t('Settings.php \'cmis_taxonomy\' Configuration Value Check'),
+    'description' => t('Global CMIS Taxonomy \'cmis_taxonomy\' Configuration check'),
+  );
 	return cmis_taxonomy_setting_validate();
 }
 
@@ -89,7 +90,7 @@ function cmis_taxonomy_setting_validate() {
 	global $conf;
 	module_load_include('api.inc', 'cmis');
 	module_load_include('cmis.inc', 'cmis_taxonomy');
-	
+
 	$ret = "<div class=\"messages status\">\n";
 	if(array_key_exists('cmis_taxonomy',$conf) && array_key_exists('taxonomy',$conf['cmis_taxonomy']))	{
 		if (!empty($conf['cmis_taxonomy']['taxonomy'])) {
@@ -107,11 +108,11 @@ function cmis_taxonomy_setting_validate() {
 	}
 	else
 		drupal_set_message(t('Missing Global Configuration [\'cmis_taxonomy\']Array in settings.php'), 'error',FALSE);
-	
-	
+
+
 	/*
 	* Test Code for functions written
-	*/
+
 	$context = array();
 	$error = FALSE;
 	$term_ctr = 0;
@@ -120,10 +121,10 @@ function cmis_taxonomy_setting_validate() {
 	$taxonomy_type = 'category';#'category';
 	$taxonomy = $conf['cmis_taxonomy']['taxonomy'][$taxonomy_type];
 	$taxonomy_setting = $taxonomy + array(
-			    'cmis_tagorcat'  => $taxonomy_type,
-				'content_format' => filter_default_format(),
-				'cmis_taxonomy_cron' => FALSE,);
-	
+    'cmis_tagorcat'  => $taxonomy_type,
+		'content_format' => filter_default_format(),
+		'cmis_taxonomy_cron' => FALSE,
+  );
 
 	$context['results'][$taxonomy_type]['new_term_tids'] = array();
 	$context['results'][$taxonomy_type]['new_term_count'] = 0;
@@ -131,25 +132,24 @@ function cmis_taxonomy_setting_validate() {
 	$context['results'][$taxonomy_type]['old_term_count'] = 0;
 	$context['results'][$taxonomy_setting['cmis_tagorcat']]['term_count'] = 0;
 	$context['sandbox']['progress'] = 0;
-	
-	
-	
-	
-	#$repository = cmis_get_repository();
+  */
+
+  #$repository = cmis_get_repository();
 	#$taxonomy['cmis_repositoryId'] = $repository->repositoryId;
 	#$ret .= t("<h6>repository : </h6>\n<pre>".print_r($repository->repositoryId,1)."</pre>\n");
 	#$cmis_obj = cmisapi_getProperties($repository->repositoryId, $taxonomy['cmis_folderId']);
 	#$ret .= t("<h6>cmis_obj : </h6>\n<pre>".print_r($cmis_obj,1)."</pre>\n");
 	#$cmis_taxonomy = cmis_taxonomy_obj($repository, $taxonomy, $cmis_obj, $context);
-	
+
 	#$context['sandbox']['max'] = $context['sandbox']['max'] + $cmis_taxonomy->numItems;
 	#$context['results'][$taxonomy_type]['numItems'] = $cmis_taxonomy->numItems;
-	
-	
+
 	#$ret .= t("<h6>cmis_taxonomy : </h6>\n<pre>".print_r($cmis_taxonomy,1)."</pre>\n");
 	#$cmis_term = cmis_taxonomy_check($cmis_taxonomy, $taxonomy, $context);
 	#$ret .= t("<h6>term : </h6>\n<pre>".print_r($cmis_term,1)."</pre>\n");
 	#$ret .= t("<h6>context : </h6>\n<pre>".print_r($context,1)."</pre>\n");
+
 	return $ret."</div>\n";
 }
+
 ?>
