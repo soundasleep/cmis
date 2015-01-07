@@ -24,33 +24,33 @@ function cmis_taxonomy_schema() {
   $schema['cmis_taxonomy'] = array(
     'fields' => array(
       'cmistxid'  => array(
-	    'type' => 'serial',
-		'unsigned' => TRUE,
-	  	'not null' => TRUE,
-		'description' => t('Primary Key: Unique ID.')
-	  ),
+      'type' => 'serial',
+    'unsigned' => TRUE,
+      'not null' => TRUE,
+    'description' => t('Primary Key: Unique ID.')
+    ),
       'vid' => array(
-	  	'type' => 'int',
-		'unsigned' => TRUE,
-		'not null' => TRUE,
-		'default' => 0,
-		'description' => t('Vocabulary ID from Drupal')
-	  ),
-	  'tid' => array(
-	  	'type' => 'int',
-		'unsigned' => TRUE,
-		'not null' => TRUE,
-		'default' => 0,
-		'description' => t('Taxonomy ID from Drupal')
-	  ),
-	  'cmis_name' => array(
+      'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+    'description' => t('Vocabulary ID from Drupal')
+    ),
+    'tid' => array(
+      'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+    'description' => t('Taxonomy ID from Drupal')
+    ),
+    'cmis_name' => array(
         'type'     => 'varchar',
         'length'   => 255,
         'not null' => TRUE,
         'default'  => '',
         'description' => t('Name from CMIS repository'),
       ),
-	  'cmis_drupal_name' => array(
+    'cmis_drupal_name' => array(
         'type'     => 'varchar',
         'length'   => 255,
         'not null' => TRUE,
@@ -71,21 +71,21 @@ function cmis_taxonomy_schema() {
         'default'  => '',
         'description' => t('objectId from CMIS repository'),
       ),
-	  'cmis_tagorcat' => array(
+    'cmis_tagorcat' => array(
         'type'     => 'varchar',
         'length'   => 255,
         'not null' => TRUE,
         'default'  => '',
         'description' => t('Tag or Category Flag from the CMIS repository'),
       ),
-	  'cmis_lastModifiedBy' => array(
+    'cmis_lastModifiedBy' => array(
         'type'     => 'varchar',
         'length'   => 255,
         'not null' => TRUE,
         'default'  => '',
         'description' => t('Tag or Category Flag from the CMIS repository'),
       ),
-	  'cmis_lastModificationDate' => array(
+    'cmis_lastModificationDate' => array(
         'type'     => 'varchar',
         'length'   => 255,
         'not null' => TRUE,
@@ -105,7 +105,7 @@ function cmis_taxonomy_schema() {
     'indexes' => array(
       'cmis_tx_repo' => array('cmis_repositoryId'),
       'cmis_tx_obj' => array('cmis_objectId'),
-	  'cmis_tx_vid' => array('vid'),
+    'cmis_tx_vid' => array('vid'),
       'cmis_tx_tid' => array('tid')
     ),
     'primary key' => array('cmistxid'),
@@ -114,19 +114,19 @@ function cmis_taxonomy_schema() {
   $schema['cmis_vocab'] = array(
     'fields' => array(
       'cmis_vid'  => array(
-	    'type' => 'serial',
-		'unsigned' => TRUE,
-	  	'not null' => TRUE,
-		'description' => t('Primary Key: Unique ID.')
-	  ),
+      'type' => 'serial',
+    'unsigned' => TRUE,
+      'not null' => TRUE,
+    'description' => t('Primary Key: Unique ID.')
+    ),
       'vid' => array(
-	  	'type' => 'int',
-		'unsigned' => TRUE,
-		'not null' => TRUE,
-		'default' => 0,
-		'description' => t('Vocabulary ID from Drupal')
-	  ),
-	  'cmis_vname' => array(
+      'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+    'description' => t('Vocabulary ID from Drupal')
+    ),
+    'cmis_vname' => array(
         'type'     => 'varchar',
         'length'   => 255,
         'not null' => TRUE,
@@ -147,11 +147,11 @@ function cmis_taxonomy_schema() {
         'default'  => '',
         'description' => t('objectId from CMIS repository'),
       ),
-	  'cmis_exclude' => array(
+    'cmis_exclude' => array(
         'type'     => 'int',
         'not null' => TRUE,
         'default'  => 0,
-		'unsigned' => TRUE,
+    'unsigned' => TRUE,
         'description' => t('Excluded Vocabularies'),
       ),
       'timestamp' => array(

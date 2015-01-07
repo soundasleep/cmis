@@ -16,7 +16,7 @@ function cmis_query_menu() {
     'page callback' => 'cmis_query_view',
     'access arguments' => array('access cmis'),
   );
-  
+
   $items['admin/cmis/query'] = array(
     'type' => MENU_NORMAL_ITEM,
     'title' => t('CMIS Query'),

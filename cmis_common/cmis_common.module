@@ -133,7 +133,7 @@ function cmis_common_cmis_invoke($url, $properties, $settings, $dry_run = FALSE)
   curl_setopt($session, CURLOPT_RETURNTRANSFER, TRUE);
   curl_setopt($session, CURLOPT_TIMEOUT, 3600);
   if(array_key_exists('headerswing_headers',$settings) && !empty($settings['headerswing_headers']['HTTP_USER_AGENT']))
-  	curl_setopt($session, CURLOPT_USERAGENT, $settings['headerswing_headers']['HTTP_USER_AGENT']);
+    curl_setopt($session, CURLOPT_USERAGENT, $settings['headerswing_headers']['HTTP_USER_AGENT']);
 
   if (!empty($settings['user'])) {
     curl_setopt($session, CURLOPT_USERPWD, $settings['user'] . ":" . $settings['password']);
@@ -163,10 +163,10 @@ function cmis_common_cmis_invoke($url, $properties, $settings, $dry_run = FALSE)
   $retval->content_type_sent = $properties['headers']['Content-Type'];
 
   if (!$dry_run) {
-	$retval->body = curl_exec($session);
+  $retval->body = curl_exec($session);
     $retval->code = curl_getinfo($session, CURLINFO_HTTP_CODE);
 
-	if (!in_array($retval->code, array(200,201,204))) {
+  if (!in_array($retval->code, array(200,201,204))) {
       throw new CMISException(t("HTTP call to [@url] returned [@code]. Response: @response", array(
         '@code' => $retval->code,
         '@response' => strip_tags($retval->body),
@@ -174,7 +174,7 @@ function cmis_common_cmis_invoke($url, $properties, $settings, $dry_run = FALSE)
       )));
     }
 
-	$retval->content_type = curl_getinfo($session, CURLINFO_CONTENT_TYPE);
+  $retval->content_type = curl_getinfo($session, CURLINFO_CONTENT_TYPE);
     $retval->content_length = curl_getinfo($session, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
     curl_close($session);
   }

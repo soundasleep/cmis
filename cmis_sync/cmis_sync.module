@@ -37,8 +37,8 @@ function cmis_sync_permission() {
       'description' => t('Perform maintenance tasks for Cmis Sync'),
     ),
     'cmis_sync cron' => array(
-	  'title' => t('Cmis Sync Cron'),
-	  'description' => t('Access for Cmis Sync Cron'),
+    'title' => t('Cmis Sync Cron'),
+    'description' => t('Access for Cmis Sync Cron'),
     ),
   );
 }
@@ -50,23 +50,23 @@ function cmis_sync_permission() {
 *
 */
 function cmis_sync_access($account) {
-	$uid = is_object($account) ? $account->uid : (int) $account;
-	if ($uid) {
-		// Admins can view all, users can view own profiles at all times.
-		if ($GLOBALS['user']->uid == $uid || user_access('cmis_sync'))
-			return TRUE;
-		else if (user_access('cmis_sync cron')) {
-			if (!is_object($account)) {
-				$account = user_load($uid);
+  $uid = is_object($account) ? $account->uid : (int) $account;
+  if ($uid) {
+    // Admins can view all, users can view own profiles at all times.
+    if ($GLOBALS['user']->uid == $uid || user_access('cmis_sync'))
+      return TRUE;
+    else if (user_access('cmis_sync cron')) {
+      if (!is_object($account)) {
+        $account = user_load($uid);
         return (is_object($account) && $account->status);
-			}
-			else
-				return FALSE;
-    	}
-		else
-			return TRUE;
-	}
-	return FALSE;
+      }
+      else
+        return FALSE;
+      }
+    else
+      return TRUE;
+  }
+  return FALSE;
 }
 
 
@@ -105,7 +105,7 @@ function cmis_sync_landing() {
   if(module_exists('cmis_sync')) {
     $ret .= "<p>Please Check Your Global Configuration Settings.PHP file before Importing Data from CMIS Repository</p>"."\n";
     $ret .= "<p>If you need help on configuration, have a look at the ".l('Help Section', 'admin/help/cmis_sync') . '</p>'."\n";
-  	$ret .= "<p>".l('Check CMIS Sync Settings', 'admin/config/cmis/cmis_sync').'</p>'."\n";
+    $ret .= "<p>".l('Check CMIS Sync Settings', 'admin/config/cmis/cmis_sync').'</p>'."\n";
     $ret .= "<p>".'Import CMIS data from CMIS Repository into Drupal Content Type is done in Cron. Please check permissions before running Cron</p>'."\n";
   }
   return $ret;
@@ -118,26 +118,26 @@ function cmis_sync_landing() {
  * @param $cron
  */
 function cmis_sync_import_batch($cron=FALSE) {
-	# Set Batch Operations
-	$operations[0] = array('cmis_sync_import', array($cron));
-	#$operations[1] = array('cmis_sync_batch_process', array($cron));
-	$batch = array(
-		'title' => t('Importing CMIS Document'),
-		'operations' => $operations,
-		'init_message' => t('Initializing CMIS Document Import....'),
-		'progress_message' => t('Processed @current out of @total.'),
-		'error_message' => t('Error procesing CMIS Document load during batch @current out of @total.'),
-		'finished' => 'cmis_sync_import_show_results',
-		#'file' => path to file where function is defined (if not in this file)
-		#'progressive' => FALSE,
-	);
-	batch_set($batch);
-	/*
-	* NOTE: To avoid issuing the drupal_goto within batch_process
-	* mark the batch with 'progressive' = FALSE;
-	* Specify here where/where to redirect after batch processing.
-	*/
-	batch_process('admin/cmis/cmis_sync');
+  # Set Batch Operations
+  $operations[0] = array('cmis_sync_import', array($cron));
+  #$operations[1] = array('cmis_sync_batch_process', array($cron));
+  $batch = array(
+    'title' => t('Importing CMIS Document'),
+    'operations' => $operations,
+    'init_message' => t('Initializing CMIS Document Import....'),
+    'progress_message' => t('Processed @current out of @total.'),
+    'error_message' => t('Error procesing CMIS Document load during batch @current out of @total.'),
+    'finished' => 'cmis_sync_import_show_results',
+    #'file' => path to file where function is defined (if not in this file)
+    #'progressive' => FALSE,
+  );
+  batch_set($batch);
+  /*
+  * NOTE: To avoid issuing the drupal_goto within batch_process
+  * mark the batch with 'progressive' = FALSE;
+  * Specify here where/where to redirect after batch processing.
+  */
+  batch_process('admin/cmis/cmis_sync');
 }
 
 
@@ -147,156 +147,156 @@ function cmis_sync_import_batch($cron=FALSE) {
 * @return $context
 */
 function cmis_sync_import($cron,&$context) {
-	global $conf;
-	$error = FALSE;
-	$term_ctr = 0;
-	$context['finished'] = 0;
-	$context['sandbox']['max'] = 0;
-	module_load_include('api.inc', 'cmis');
-	module_load_include('php', 'taxonomy', 'taxonomy.api');
-	module_load_include('cmis.inc', 'cmis_sync');
+  global $conf;
+  $error = FALSE;
+  $term_ctr = 0;
+  $context['finished'] = 0;
+  $context['sandbox']['max'] = 0;
+  module_load_include('api.inc', 'cmis');
+  module_load_include('php', 'taxonomy', 'taxonomy.api');
+  module_load_include('cmis.inc', 'cmis_sync');
 
-	$batch_limit = CMIS_SYNC_IMPORT_BATCH_LIMIT;
-	$cmis_sync = $conf['cmis_sync_map'];
+  $batch_limit = CMIS_SYNC_IMPORT_BATCH_LIMIT;
+  $cmis_sync = $conf['cmis_sync_map'];
 
-	foreach($cmis_sync as $node_type => $document) {
-		if (!array_key_exists('enabled',$document)) {
-			$error = TRUE;
-			$context['finished'] = 1;
-			drupal_set_message('Document key [\'enabled\'] does not exists for '.$node_type,'error <pre>'.print_r($document,1).'</pre>');
-			watchdog('cmis_sync', "Document key [\'enabled\'] does not exists for @node_type ", array('@node_type' => print_r($node_type,1)), WATCHDOG_ERROR, NULL);
-		}
-		else {
-			if($document['enabled'] <> TRUE) {
-				$error = TRUE;
-				$context['finished'] = 1;
-				drupal_set_message('Document not enabled for '.$node_type,'error');
-				watchdog('cmis_sync', "Document not enabled for @node_type ", array('@node_type' => print_r($node_type,1)), WATCHDOG_ERROR, NULL);
-			}
-		}
-	}
+  foreach($cmis_sync as $node_type => $document) {
+    if (!array_key_exists('enabled',$document)) {
+      $error = TRUE;
+      $context['finished'] = 1;
+      drupal_set_message('Document key [\'enabled\'] does not exists for '.$node_type,'error <pre>'.print_r($document,1).'</pre>');
+      watchdog('cmis_sync', "Document key [\'enabled\'] does not exists for @node_type ", array('@node_type' => print_r($node_type,1)), WATCHDOG_ERROR, NULL);
+    }
+    else {
+      if($document['enabled'] <> TRUE) {
+        $error = TRUE;
+        $context['finished'] = 1;
+        drupal_set_message('Document not enabled for '.$node_type,'error');
+        watchdog('cmis_sync', "Document not enabled for @node_type ", array('@node_type' => print_r($node_type,1)), WATCHDOG_ERROR, NULL);
+      }
+    }
+  }
 
-	foreach($cmis_sync as $node_type => $document_setting) {
-		if($document_setting['enabled'] == TRUE) {
-			# merge default settings for the $document
-			$document_setting += array(
-			  'cmis_sync_type'  => $node_type,
-			  'fields' => array(),
-			  'content_field' => 'body',
-			  'maxItems' => 100000,
-			  'renditionFilter' => 'cmis:thumbnail',
-			  'content_format' => filter_default_format(),
-			  'cmis_type' => 'cmis:document',
-			  'cmis_versionLabel' => 'cmis:versionLabel',
-			  'cmis_repositoryId' => 'default',
-			  'subfolders' => FALSE,
-			  'deletes' => FALSE,
-			  'cmis_sync_cron' => $cron,
-			);
-			try {
-				// lookup CMIS repository
-				$repository = cmis_get_repository($document_setting['cmis_repositoryId']);
-				// get CMIS object properties
-				if(!empty($repository->repositoryId)) {
-					$document_setting['cmis_repositoryId'] = $repository->repositoryId;
-					if (!empty($document['cmis_folderPath']))
-						$cmis_obj = cmisapi_getObjectByPath($repository->repositoryId, $document_setting['cmis_folderPath']);
-					else if (!empty($document['cmis_folderId']))
-						$cmis_obj = cmisapi_getProperties($repository->repositoryId, $document_setting['cmis_folderId']);
-					else {
-						$error = TRUE;
-						$context['finished'] = 1;
-						watchdog('cmis_sync', "`cmis_folderPath` or `cmis_folderId` properties for [@settingProp].", array('@settingProp' => print_r($document_setting,1)), WATCHDOG_EMERGENCY);
-						$context['results'][$node_type]['error'] .= t("`cmis_folderPath` or `cmis_folderId` properties for [@settingProp].", array('@settingProp' => print_r($document_setting,1)));
-						#throw new CMISException($cmis_obj);
-					}
-				}
-				else {
-					$error = TRUE;
-					$context['finished'] = 1;
-					watchdog('cmis_sync', "Repository Cannot be Connected Error: @error", array('@error' => print_r($repository,1)), WATCHDOG_EMERGENCY);
-					$context['results'][$node_type]['error'] .= t("Repository Cannot be Connected Error: @error", array('@error' => print_r($repository,1)));
-					#throw new CMISException($repository);
-				}
-				//Get Number of Records to process
-				if(!empty($cmis_obj->id)) {
-					$cmis_sync = cmis_sync_obj($repository, $document_setting, $cmis_obj, $context);
-				}
-				else {
-					$error = TRUE;
-					$context['finished'] = 1;
-					watchdog('cmis_sync', "Cmis Obj Cannot be Found: @error", array('@error' => print_r($cmis_obj,1)), WATCHDOG_EMERGENCY);
-					$context['results'][$node_type]['error'] .= t("Cmis Obj Cannot be Found: @error", array('@error' => print_r($cmis_obj,1)));
-					#throw new CMISException($cmis_obj);
-				}
-				// If there was an error, immediately complete the batch process.
-				if ($error) {
-					$context['finished'] = 1;
-					break;
-				}
-				if(is_object($cmis_sync) && ($cmis_sync->numItems > 0) && ($error === FALSE) && ($context['finished'] <> 1) ) {
-					//Start Batch Processing
-					if (!isset($context['sandbox']['progress']) || !isset($context['results'][$node_type]['numItems']) || empty($context['results'][$node_type]['numItems'])) {
-						#$context['results'][$node_type]['new_vocab_vids'] = array();
-						#$context['results'][$node_type]['new_vocab_count'] = 0;
-						$context['results'][$node_type]['new_term_tids'] = array();
-						$context['results'][$node_type]['new_term_count'] = 0;
-						$context['results'][$node_type]['old_term_tids'] = array();
-						$context['results'][$node_type]['old_term_count'] = 0;
-						$context['results'][$document_setting['cmis_tagorcat']]['term_count'] = $term_ctr;
-						$context['sandbox']['progress'] = 0;
-						$context['sandbox']['max'] = $context['sandbox']['max'] + $cmis_sync->numItems;
-						#$context['sandbox'][$node_type]['maxItems'] = $document_setting['maxItems'];
-						$context['results'][$node_type]['numItems'] = $cmis_sync->numItems;
-					}
+  foreach($cmis_sync as $node_type => $document_setting) {
+    if($document_setting['enabled'] == TRUE) {
+      # merge default settings for the $document
+      $document_setting += array(
+        'cmis_sync_type'  => $node_type,
+        'fields' => array(),
+        'content_field' => 'body',
+        'maxItems' => 100000,
+        'renditionFilter' => 'cmis:thumbnail',
+        'content_format' => filter_default_format(),
+        'cmis_type' => 'cmis:document',
+        'cmis_versionLabel' => 'cmis:versionLabel',
+        'cmis_repositoryId' => 'default',
+        'subfolders' => FALSE,
+        'deletes' => FALSE,
+        'cmis_sync_cron' => $cron,
+      );
+      try {
+        // lookup CMIS repository
+        $repository = cmis_get_repository($document_setting['cmis_repositoryId']);
+        // get CMIS object properties
+        if(!empty($repository->repositoryId)) {
+          $document_setting['cmis_repositoryId'] = $repository->repositoryId;
+          if (!empty($document['cmis_folderPath']))
+            $cmis_obj = cmisapi_getObjectByPath($repository->repositoryId, $document_setting['cmis_folderPath']);
+          else if (!empty($document['cmis_folderId']))
+            $cmis_obj = cmisapi_getProperties($repository->repositoryId, $document_setting['cmis_folderId']);
+          else {
+            $error = TRUE;
+            $context['finished'] = 1;
+            watchdog('cmis_sync', "`cmis_folderPath` or `cmis_folderId` properties for [@settingProp].", array('@settingProp' => print_r($document_setting,1)), WATCHDOG_EMERGENCY);
+            $context['results'][$node_type]['error'] .= t("`cmis_folderPath` or `cmis_folderId` properties for [@settingProp].", array('@settingProp' => print_r($document_setting,1)));
+            #throw new CMISException($cmis_obj);
+          }
+        }
+        else {
+          $error = TRUE;
+          $context['finished'] = 1;
+          watchdog('cmis_sync', "Repository Cannot be Connected Error: @error", array('@error' => print_r($repository,1)), WATCHDOG_EMERGENCY);
+          $context['results'][$node_type]['error'] .= t("Repository Cannot be Connected Error: @error", array('@error' => print_r($repository,1)));
+          #throw new CMISException($repository);
+        }
+        //Get Number of Records to process
+        if(!empty($cmis_obj->id)) {
+          $cmis_sync = cmis_sync_obj($repository, $document_setting, $cmis_obj, $context);
+        }
+        else {
+          $error = TRUE;
+          $context['finished'] = 1;
+          watchdog('cmis_sync', "Cmis Obj Cannot be Found: @error", array('@error' => print_r($cmis_obj,1)), WATCHDOG_EMERGENCY);
+          $context['results'][$node_type]['error'] .= t("Cmis Obj Cannot be Found: @error", array('@error' => print_r($cmis_obj,1)));
+          #throw new CMISException($cmis_obj);
+        }
+        // If there was an error, immediately complete the batch process.
+        if ($error) {
+          $context['finished'] = 1;
+          break;
+        }
+        if(is_object($cmis_sync) && ($cmis_sync->numItems > 0) && ($error === FALSE) && ($context['finished'] <> 1) ) {
+          //Start Batch Processing
+          if (!isset($context['sandbox']['progress']) || !isset($context['results'][$node_type]['numItems']) || empty($context['results'][$node_type]['numItems'])) {
+            #$context['results'][$node_type]['new_vocab_vids'] = array();
+            #$context['results'][$node_type]['new_vocab_count'] = 0;
+            $context['results'][$node_type]['new_term_tids'] = array();
+            $context['results'][$node_type]['new_term_count'] = 0;
+            $context['results'][$node_type]['old_term_tids'] = array();
+            $context['results'][$node_type]['old_term_count'] = 0;
+            $context['results'][$document_setting['cmis_tagorcat']]['term_count'] = $term_ctr;
+            $context['sandbox']['progress'] = 0;
+            $context['sandbox']['max'] = $context['sandbox']['max'] + $cmis_sync->numItems;
+            #$context['sandbox'][$node_type]['maxItems'] = $document_setting['maxItems'];
+            $context['results'][$node_type]['numItems'] = $cmis_sync->numItems;
+          }
 
-					do {
-						$reached_threshold = FALSE;
-						if ($term_ctr <= $cmis_sync->numItems) {
-							if ($term_ctr >= $batch_limit) {
-								$reached_threshold = TRUE; // Restart from here
-							}
-							else {
-								$cmis_term = cmis_sync_check($cmis_sync, $document_setting, $context);
-								if($cmis_term) {
-									$term_ctr = $term_ctr + 1;
-									$context['results'][$document_setting['cmis_tagorcat']]['term_count'] = $term_ctr;
-									$context['sandbox']['progress'] = $context['sandbox']['progress'] + 1;
-								}
-							}
-						}
-						else
-							$reached_threshold = TRUE;
-					} while ( !$reached_threshold ) ;
+          do {
+            $reached_threshold = FALSE;
+            if ($term_ctr <= $cmis_sync->numItems) {
+              if ($term_ctr >= $batch_limit) {
+                $reached_threshold = TRUE; // Restart from here
+              }
+              else {
+                $cmis_term = cmis_sync_check($cmis_sync, $document_setting, $context);
+                if($cmis_term) {
+                  $term_ctr = $term_ctr + 1;
+                  $context['results'][$document_setting['cmis_tagorcat']]['term_count'] = $term_ctr;
+                  $context['sandbox']['progress'] = $context['sandbox']['progress'] + 1;
+                }
+              }
+            }
+            else
+              $reached_threshold = TRUE;
+          } while ( !$reached_threshold ) ;
 
-					if ($context['sandbox']['progress'] >= $context['sandbox']['max']) {
-						$context['finished'] = ((int)$context['sandbox']['progress'] / (int)$context['sandbox']['max']);
-					} else {
-						// Clean up etc at end of batch.
-						$nbr_terms_created = $context['results'][$node_type]['new_term_count'];
-						$nbr_terms_updated = $context['results'][$node_type]['old_term_count'];
-						if (CMIS_TAXONOMY_IMPORT_DEBUG) {
-							drupal_set_message("Created $nbr_terms_created new Document terms. Updated $nbr_terms_updated existing Document terms .");
-							watchdog('cmis_sync', "Created @nbr_terms_created new Document terms. Updated @nbr_terms_updated existing Document terms .", array('@nbr_terms_created' => $nbr_terms_created, '@nbr_terms_updated' => $nbr_terms_updated), WATCHDOG_INFO, NULL);
-							$context['results'][$node_type] = t("Created @nbr_terms_created new Document terms. Updated @nbr_terms_updated existing Document terms .", array('@nbr_terms_created' => $nbr_terms_created, '@nbr_terms_updated' => $nbr_terms_updated));
-						}
-					}
-				}
-				else {
-					watchdog('cmis_sync', "No Term Data : @cmis_sync", array('@cmis_sync' => print_r($cmis_sync,1)), WATCHDOG_ERROR, NULL);
-					$context['results'][$node_type]['error'] .= t("No Term Data : @cmis_sync", array('@cmis_sync' => print_r($cmis_sync,1)));
-				}
-			}
-			catch (CMISException $e) {
-				drupal_set_message("Error in data extraction \n<pre>".print_r($e,1)."</pre>\n",'error');
-				watchdog('cmis_sync', "Error in data extraction @e", array('@e' => print_r($e,1)), WATCHDOG_ERROR, NULL);
-				$error = TRUE;
-				$context['finished'] = 1;
-				$context['results'][$node_type]['error'] .= t("Error in data extraction @e", array('@e' => print_r($e,1)));
-				break;
-			}
-		}
-	}//end foreach
+          if ($context['sandbox']['progress'] >= $context['sandbox']['max']) {
+            $context['finished'] = ((int)$context['sandbox']['progress'] / (int)$context['sandbox']['max']);
+          } else {
+            // Clean up etc at end of batch.
+            $nbr_terms_created = $context['results'][$node_type]['new_term_count'];
+            $nbr_terms_updated = $context['results'][$node_type]['old_term_count'];
+            if (CMIS_TAXONOMY_IMPORT_DEBUG) {
+              drupal_set_message("Created $nbr_terms_created new Document terms. Updated $nbr_terms_updated existing Document terms .");
+              watchdog('cmis_sync', "Created @nbr_terms_created new Document terms. Updated @nbr_terms_updated existing Document terms .", array('@nbr_terms_created' => $nbr_terms_created, '@nbr_terms_updated' => $nbr_terms_updated), WATCHDOG_INFO, NULL);
+              $context['results'][$node_type] = t("Created @nbr_terms_created new Document terms. Updated @nbr_terms_updated existing Document terms .", array('@nbr_terms_created' => $nbr_terms_created, '@nbr_terms_updated' => $nbr_terms_updated));
+            }
+          }
+        }
+        else {
+          watchdog('cmis_sync', "No Term Data : @cmis_sync", array('@cmis_sync' => print_r($cmis_sync,1)), WATCHDOG_ERROR, NULL);
+          $context['results'][$node_type]['error'] .= t("No Term Data : @cmis_sync", array('@cmis_sync' => print_r($cmis_sync,1)));
+        }
+      }
+      catch (CMISException $e) {
+        drupal_set_message("Error in data extraction \n<pre>".print_r($e,1)."</pre>\n",'error');
+        watchdog('cmis_sync', "Error in data extraction @e", array('@e' => print_r($e,1)), WATCHDOG_ERROR, NULL);
+        $error = TRUE;
+        $context['finished'] = 1;
+        $context['results'][$node_type]['error'] .= t("Error in data extraction @e", array('@e' => print_r($e,1)));
+        break;
+      }
+    }
+  }//end foreach
 }
 
 
@@ -309,44 +309,44 @@ function cmis_sync_import($cron,&$context) {
  * Menu callback and form builder for admin/settings/cmis_sync.
  */
 function cmis_sync_admin_settings() {
-	$page = array(
-    	'title' => t('Settings.php \'cmis_sync\' Configuration Value Check'),
-    	'description' => t('Global CMIS Document \'cmis_sync\' Configuration check'),
+  $page = array(
+      'title' => t('Settings.php \'cmis_sync\' Configuration Value Check'),
+      'description' => t('Global CMIS Document \'cmis_sync\' Configuration check'),
     );
-	return cmis_sync_setting_validate();
+  return cmis_sync_setting_validate();
 }
 
 /**
  * Validate that the cmis_sync_setting_validate exists.
  */
 function cmis_sync_setting_validate() {
-	global $conf;
-	module_load_include('api.inc', 'cmis');
-	module_load_include('cmis.inc', 'cmis_sync');
-	$min_global_conf = array('enabled','cmis_type','content_field','cmis_folderId','fields','subfolders','cmis_sync_cron','cmis_sync_cron_enabled');
-	$ret = "<div class=\"messages status\">\n";
-	if(array_key_exists('cmis_sync_map',$conf) && is_array($conf['cmis_sync_map']))	{
-		if (!empty($conf['cmis_sync_map'])) {
-			foreach($conf['cmis_sync_map'] as $node_type => $v) {
-				foreach($min_global_conf as $m) {
-					if(!array_key_exists($m,$v))
-						drupal_set_message(t('Missing Global Configuration Key '.$m.' in settings.php'), 'error');
-				}
-				variable_set('cmis_sync_cron_enabled_'.$node_type, $v['cmis_sync_cron_enabled']);
-				$ret .= t("<h5>Global Configuration Settings ['".ucfirst($node_type)."'] : </h5>\n<pre>".print_r($v,1)."</pre>\n");
-			}
-		}
-		else
-			drupal_set_message(t('Missing Global Configuration [\'cmis_sync_map\']Array \'node_type\' in settings.php'), 'error',FALSE);
-	}
-	else
-		drupal_set_message(t('Missing Global Configuration [\'cmis_sync_map\']Array in settings.php'), 'error',FALSE);
+  global $conf;
+  module_load_include('api.inc', 'cmis');
+  module_load_include('cmis.inc', 'cmis_sync');
+  $min_global_conf = array('enabled','cmis_type','content_field','cmis_folderId','fields','subfolders','cmis_sync_cron','cmis_sync_cron_enabled');
+  $ret = "<div class=\"messages status\">\n";
+  if(array_key_exists('cmis_sync_map',$conf) && is_array($conf['cmis_sync_map'])) {
+    if (!empty($conf['cmis_sync_map'])) {
+      foreach($conf['cmis_sync_map'] as $node_type => $v) {
+        foreach($min_global_conf as $m) {
+          if(!array_key_exists($m,$v))
+            drupal_set_message(t('Missing Global Configuration Key '.$m.' in settings.php'), 'error');
+        }
+        variable_set('cmis_sync_cron_enabled_'.$node_type, $v['cmis_sync_cron_enabled']);
+        $ret .= t("<h5>Global Configuration Settings ['".ucfirst($node_type)."'] : </h5>\n<pre>".print_r($v,1)."</pre>\n");
+      }
+    }
+    else
+      drupal_set_message(t('Missing Global Configuration [\'cmis_sync_map\']Array \'node_type\' in settings.php'), 'error',FALSE);
+  }
+  else
+    drupal_set_message(t('Missing Global Configuration [\'cmis_sync_map\']Array in settings.php'), 'error',FALSE);
 
 
-	/*
-	* Test Code for functions written
-	*/
-	return $ret."</div>\n";
+  /*
+  * Test Code for functions written
+  */
+  return $ret."</div>\n";
 }
 
 /**
@@ -356,77 +356,77 @@ function cmis_sync_help($path, $arg) {
   switch ($path) {
     case 'admin/help#cmis_sync':
       return t("<a href='https://www.drupal.org/project/cmis' target='_blank' rel='follow'>CMIS Sync</a> Sync Mapping module built in Drupal based on Alfresco CMIS Platform.
-			   <p>Create the following to help work:</p>
-			   <p>Vocabularies: Tags (tags)(In Drupal 'Tags' exists as a default vocabulary)</p>
-			   <ol>
-				   <li> Alfresco Content Type :
-						<ol> Fields:
-							<li>'field_alf_objid'</li>
-							<li>'field_alf_filename'</li>
-							<li>'field_alf_version'</li>
-							<li>'field_alf_description'</li>
-							<li>'field_alf_last_mod_date'</li>
-							<li>'field_alf_last_mod_by'</li>
-							<li>'field_alf_mime'</li>
-							<li>'field_alf_versionseriesid'</li>
-							<li>'field_alf_path' (link) '/cmis/browser?id=[node:field_alf_versionseriesid]' </li>
-							<li>'field_alf_created_by'</li>
-							<li>'field_alf_filesize'</li>
-							<li>'field_alf_renditions'</li>
-							<li>'field_alf_tags' (term reference)</li>
-							<li>'field_alf_cat_2' (term reference){Document Classification Vocab}</li>
-							<li>'field_alf_cat_3' (term reference){..... Vocabularies}...etc..</li>
-						</ol>
-					</li>
-					<li> Settings.PHP File : <br/>
-					 <pre>
+         <p>Create the following to help work:</p>
+         <p>Vocabularies: Tags (tags)(In Drupal 'Tags' exists as a default vocabulary)</p>
+         <ol>
+           <li> Alfresco Content Type :
+            <ol> Fields:
+              <li>'field_alf_objid'</li>
+              <li>'field_alf_filename'</li>
+              <li>'field_alf_version'</li>
+              <li>'field_alf_description'</li>
+              <li>'field_alf_last_mod_date'</li>
+              <li>'field_alf_last_mod_by'</li>
+              <li>'field_alf_mime'</li>
+              <li>'field_alf_versionseriesid'</li>
+              <li>'field_alf_path' (link) '/cmis/browser?id=[node:field_alf_versionseriesid]' </li>
+              <li>'field_alf_created_by'</li>
+              <li>'field_alf_filesize'</li>
+              <li>'field_alf_renditions'</li>
+              <li>'field_alf_tags' (term reference)</li>
+              <li>'field_alf_cat_2' (term reference){Document Classification Vocab}</li>
+              <li>'field_alf_cat_3' (term reference){..... Vocabularies}...etc..</li>
+            </ol>
+          </li>
+          <li> Settings.PHP File : <br/>
+           <pre>
 \$conf['cmis_sync_map'] = array(
-	'document' => array ( // Actual Working {alfresco_document} Drupal Content Type.
-		'enabled' => TRUE,
-      	'cmis_type' => 'cmis:document',
-		'maxItems' => 10000,
-		'renditionFilter' => 'cmis:thumbnail,alf:webpreview',
-		'content_field' => 'body',
-      	//'cmis_repositoryId' => '-default-',
-      	//'cmis_folderPath' => '/Shared/drupal/',
-		'cmis_folderId' => 'workspace://SpacesStore/a2fa5ea1-6d56-42e4-8acd-c53b132fcf0b',
-		'deletes' => FALSE, // Sync Deletes [Warning this deletes content in Alfresco]
-		'subfolders' => TRUE, // Sync sub folders
-		'cmis_sync_cron' => TRUE, // Grab only new items via cron. If FALSE Module will Sync all items under given cmis_folderPath
-		'cmis_sync_cron_enabled' => TRUE, //if TRUE, CMIS to Drupal sync will be triggered by cron.
-		'cmis_to_drupal' => TRUE,
-		'drupal_to_cmis' => FALSE,
-		#Field Mapping Drupal to CMIS and Vice Versa
-      	'fields' => array(
-        	array('drupal'=>'title', 'cmis'=>'cm:title', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
-		 	array('drupal'=>'field_alf_objid', 'cmis'=>'cmis:objectId', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
-			array('drupal'=>'field_alf_filename', 'cmis'=>'cmis:name', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
-			array('drupal'=>'field_alf_version', 'cmis'=>'cmis:versionLabel', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
-			array('drupal'=>'field_alf_description', 'cmis'=>'cmis:description', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
-			array('drupal'=>'field_alf_last_mod_date', 'cmis'=>'cmis:lastModificationDate', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
-			array('drupal'=>'field_alf_last_mod_by', 'cmis'=>'cmis:lastModifiedBy', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
-		 	array('drupal'=>'field_alf_mime', 'cmis'=>'cmis:contentStreamMimeType', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
-		 	array('drupal'=>'field_alf_versionseriesid', 'cmis'=>'cmis:versionSeriesId', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
-			#drupal 'field_alf_path' (link) Add {http://www.trunet.local/cmis/browser?id=[node:field_alf_versionseriesid]] to the default url
-			array('drupal'=>'field_alf_path', 'cmis'=>'cmis:versionSeriesId', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
-		 	array('drupal'=>'field_alf_created_by', 'cmis'=>'cmis:createdBy', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
-		 	array('drupal'=>'field_alf_filesize', 'cmis'=>'cmis:contentStreamLength', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
-		 	array('drupal'=>'field_alf_renditions', 'cmis'=>'cmis:linkimage', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
-			#Vocabulary Section
-		 	array('drupal'=>'field_alf_tags', 'cmis'=>'cm:taggable', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
-		 	array('drupal'=>'field_alf_cat_2', 'cmis'=>'cm:categories', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
-			array('drupal'=>'field_alf_cat_3', 'cmis'=>'cm:categories', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
-			array('drupal'=>'field_alf_cat_4', 'cmis'=>'cm:categories', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
-			array('drupal'=>'field_alf_cat_5', 'cmis'=>'cm:categories', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
-			array('drupal'=>'field_alf_cat_6', 'cmis'=>'cm:categories', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
-			array('drupal'=>'field_alf_cat_7', 'cmis'=>'cm:categories', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
-			array('drupal'=>'field_alf_cat_8', 'cmis'=>'cm:categories', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
-      	),
-	),
+  'document' => array ( // Actual Working {alfresco_document} Drupal Content Type.
+    'enabled' => TRUE,
+        'cmis_type' => 'cmis:document',
+    'maxItems' => 10000,
+    'renditionFilter' => 'cmis:thumbnail,alf:webpreview',
+    'content_field' => 'body',
+        //'cmis_repositoryId' => '-default-',
+        //'cmis_folderPath' => '/Shared/drupal/',
+    'cmis_folderId' => 'workspace://SpacesStore/a2fa5ea1-6d56-42e4-8acd-c53b132fcf0b',
+    'deletes' => FALSE, // Sync Deletes [Warning this deletes content in Alfresco]
+    'subfolders' => TRUE, // Sync sub folders
+    'cmis_sync_cron' => TRUE, // Grab only new items via cron. If FALSE Module will Sync all items under given cmis_folderPath
+    'cmis_sync_cron_enabled' => TRUE, //if TRUE, CMIS to Drupal sync will be triggered by cron.
+    'cmis_to_drupal' => TRUE,
+    'drupal_to_cmis' => FALSE,
+    #Field Mapping Drupal to CMIS and Vice Versa
+        'fields' => array(
+          array('drupal'=>'title', 'cmis'=>'cm:title', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
+      array('drupal'=>'field_alf_objid', 'cmis'=>'cmis:objectId', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
+      array('drupal'=>'field_alf_filename', 'cmis'=>'cmis:name', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
+      array('drupal'=>'field_alf_version', 'cmis'=>'cmis:versionLabel', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
+      array('drupal'=>'field_alf_description', 'cmis'=>'cmis:description', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
+      array('drupal'=>'field_alf_last_mod_date', 'cmis'=>'cmis:lastModificationDate', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
+      array('drupal'=>'field_alf_last_mod_by', 'cmis'=>'cmis:lastModifiedBy', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
+      array('drupal'=>'field_alf_mime', 'cmis'=>'cmis:contentStreamMimeType', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
+      array('drupal'=>'field_alf_versionseriesid', 'cmis'=>'cmis:versionSeriesId', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
+      #drupal 'field_alf_path' (link) Add {http://www.trunet.local/cmis/browser?id=[node:field_alf_versionseriesid]] to the default url
+      array('drupal'=>'field_alf_path', 'cmis'=>'cmis:versionSeriesId', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
+      array('drupal'=>'field_alf_created_by', 'cmis'=>'cmis:createdBy', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
+      array('drupal'=>'field_alf_filesize', 'cmis'=>'cmis:contentStreamLength', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
+      array('drupal'=>'field_alf_renditions', 'cmis'=>'cmis:linkimage', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
+      #Vocabulary Section
+      array('drupal'=>'field_alf_tags', 'cmis'=>'cm:taggable', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
+      array('drupal'=>'field_alf_cat_2', 'cmis'=>'cm:categories', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
+      array('drupal'=>'field_alf_cat_3', 'cmis'=>'cm:categories', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
+      array('drupal'=>'field_alf_cat_4', 'cmis'=>'cm:categories', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
+      array('drupal'=>'field_alf_cat_5', 'cmis'=>'cm:categories', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
+      array('drupal'=>'field_alf_cat_6', 'cmis'=>'cm:categories', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
+      array('drupal'=>'field_alf_cat_7', 'cmis'=>'cm:categories', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
+      array('drupal'=>'field_alf_cat_8', 'cmis'=>'cm:categories', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE),
+        ),
+  ),
 );
-					 </pre>
-					</li>
-				</ol>");
+           </pre>
+          </li>
+        </ol>");
   }
 }
 
@@ -435,24 +435,24 @@ function cmis_sync_help($path, $arg) {
  *
  */
 function cmis_sync_cron() {
-	global $conf;
-	global $user;
-	if(array_key_exists('cmis_sync_map',$conf) && is_array($conf['cmis_sync_map']))	{
-		if (!empty($conf['cmis_sync_map'])) {
-			$node_types = array_keys($conf['cmis_sync_map']);
-			foreach($node_types as $node_type) {
-				if (variable_get('cmis_sync_cron_enabled_'.$node_type, FALSE)) {
-					drupal_flush_all_caches();
-					module_load_include('cmis.inc', 'cmis_sync');
-					try {
-						_cmis_sync_cmis_drupal_update(array(),$user);
-					}
-					catch (CMISException $e) {
-						cmis_error_handler('cmis_sync', $e);
-						watchdog('cmis_sync', "CMIS Sync Error: @list", array('@list' => implode(", ", array_keys($e))), WATCHDOG_WARNING);
-					}
-				}
-			}
-		}
-	}
+  global $conf;
+  global $user;
+  if(array_key_exists('cmis_sync_map',$conf) && is_array($conf['cmis_sync_map'])) {
+    if (!empty($conf['cmis_sync_map'])) {
+      $node_types = array_keys($conf['cmis_sync_map']);
+      foreach($node_types as $node_type) {
+        if (variable_get('cmis_sync_cron_enabled_'.$node_type, FALSE)) {
+          drupal_flush_all_caches();
+          module_load_include('cmis.inc', 'cmis_sync');
+          try {
+            _cmis_sync_cmis_drupal_update(array(),$user);
+          }
+          catch (CMISException $e) {
+            cmis_error_handler('cmis_sync', $e);
+            watchdog('cmis_sync', "CMIS Sync Error: @list", array('@list' => implode(", ", array_keys($e))), WATCHDOG_WARNING);
+          }
+        }
+      }
+    }
+  }
 }

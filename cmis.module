@@ -150,8 +150,8 @@ function cmis_invoke($repositry_id, $url = '', $properties = array()) {
     foreach (module_implements('cmis_invoke') as $module) {
       //Determine which module to use and change the cmis_transport mechanism from the default set in cmis_get_repository
       if($module != $cmis_transport){
-	     $cmis_transport = $module;
-	     break;
+       $cmis_transport = $module;
+       break;
       }
     }
   }
@@ -248,7 +248,7 @@ function cmis_landing() {
   $ret .= l('Check CMIS configuration', 'admin/config/cmis') . '<br />'."\n";
   $ret .= l('Check PHP CMIS library', 'admin/config/cmis/common') . '<br />'."\n";
   if(module_exists('cmis_browser')) {
-  	$ret .= "<p>".l('Check CMIS Browser Settings', 'admin/config/cmis/browser').'</p>'."\n";
+    $ret .= "<p>".l('Check CMIS Browser Settings', 'admin/config/cmis/browser').'</p>'."\n";
     $ret .= "<p>".l('CMIS Browser', 'cmis/browser').'</p>'."\n";
   }
   if(module_exists('cmis_query')) {
@@ -257,13 +257,13 @@ function cmis_landing() {
   if(module_exists('cmis_sync')) {
     $ret .= "<p>Please Check Your Global Configuration Settings.PHP file before Importing Data from CMIS Repository</p>"."\n";
     $ret .= "<p>If you need help on configuration, have a look at the ".l('Help Section', 'admin/help/cmis_sync') . '</p>'."\n";
-  	$ret .= "<p>".l('Check CMIS Sync Settings', 'admin/config/cmis/cmis_sync').'</p>'."\n";
+    $ret .= "<p>".l('Check CMIS Sync Settings', 'admin/config/cmis/cmis_sync').'</p>'."\n";
     $ret .= "<p>".'Import CMIS data from CMIS Repository into Drupal Content Type is done in Cron. Please check permissions before running Cron</p>'."\n";
   }
   if(module_exists('cmis_taxonomy')) {
     $ret .= "<p>Please Check Your Global Configuration Settings.PHP file before Importing Data from CMIS Repository</p>"."\n";
     $ret .= "<p>If you need help on configuration, have a look at the ".l('Help Section', 'admin/help/cmis_taxonomy') . '</p>'."\n";
-  	$ret .= "<p>".l('Check CMIS Taxonomy Settings', 'admin/config/cmis/cmis_taxonomy').'</p>'."\n";
+    $ret .= "<p>".l('Check CMIS Taxonomy Settings', 'admin/config/cmis/cmis_taxonomy').'</p>'."\n";
     $ret .= "<p>".l('CMIS Vocabulary Mapping', 'admin/cmis/cmis_taxonomy/vocabulary').'</p>'."\n";
     $ret .= "<p>".l('Import CMIS Tags/Category data from CMIS Repository into Drupal Taxonomy', 'admin/cmis_taxonomy/cmis_taxonomy_import').'</p>'."\n";
   }
