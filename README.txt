@@ -26,17 +26,17 @@ Contents
  * CMIS Sync Hooks
  * CMIS Headerswing Settings
  * Credits
- 
+
 Requirements
 ------------
-PHP cURL 
+PHP cURL
 
 Installation
 ------------
 
  * Place the entire cmis folder into your modules directory.
  * Either:
-   * Download the PHP CMIS Lib from https://people.apache.org/~richardm/chemistry/phpclient/0.2.0-RC1/ and unzip in the libraries folder 
+   * Download the PHP CMIS Lib from https://people.apache.org/~richardm/chemistry/phpclient/0.2.0-RC1/ and unzip in the libraries folder
    * Download the PHP CMIS Lib via Drush 'drush cmis-phplib' will install to sites/all/libraries/php-cmislib, or pass directory as a paramater 'drush cmis-phplib sites/cmis/libraries/php-cmislib'
  * Go to Administer -> Site building -> Modules and enable the cmis modules.
  * Check that the CMIS Library is being found (http://<site>/admin/settings/cmis/common)
@@ -48,7 +48,7 @@ Repository Configuration
 
  Make sure that `cmis`, `cmis_common`, `cmis_browser` and `cmis_query` modules
  are enabled and add the following lines in your `settings.php` file:
- 
+
 $conf['cmis_repositories'] = array(
   'default' => array(
     'user' => '<cmis_user_username>',
@@ -56,8 +56,8 @@ $conf['cmis_repositories'] = array(
     'url' => 'http://path/to/cmis/interface'
   )
 );
- 
- 
+
+
  Settings:
   * user - Generic username used by cmis_common to authenticate Drupal to the CMIS repository
          - optional, used by cmis_common
@@ -80,11 +80,11 @@ $conf['cmis_repositories'] = array(
 
  To browse the CMIS repository go to http://localhost/cmis/browser.
  To query it go to http://localhost/cmis/query.
- 
- Query example: 
+
+ Query example:
  To perform the query "select * from cmis:document" go to
- http://localhost/cmis/query/select%2B%252A%2Bfrom%2Bcmis%253Adocument  
- 
+ http://localhost/cmis/query/select%2B%252A%2Bfrom%2Bcmis%253Adocument
+
 Drupal-CMIS synchronization
 ---------------------------
 
@@ -105,7 +105,7 @@ $conf['cmis_sync_map'] = array(
 			array('drupal'=>'some_other_custom_field', 'cmis'=>'cmis:someOtherCustomProperty', 'cmis to drupal' => TRUE, 'drupal to cmis' => FALSE)
 		)
   ),
-	
+
  	// ...
 );
 
@@ -115,7 +115,7 @@ $conf['cmis_sync_map'] = array(
  under cmis_folderPath by mapping $node->title to cmis:name
  and $node->body to cmis object's content stream.
 
- 
+
  Settings:
   * enabled - synchronization state for current drupal content type
             - mandatory
@@ -151,7 +151,7 @@ $conf['cmis_sync_map'] = array(
 
  Fields sync setting syntax:
   * short hand syntax:
-  
+
 $conf['cmis_sync_map']['page']['fields'] = array(
   'title' => 'cmis:name',
   'custom_cck_field' => 'some cmis custom property'
@@ -162,17 +162,17 @@ $conf['cmis_sync_map']['page']['fields'] = array(
 $conf['cmis_sync_map']['page']['fields'] = array(
   array('drupal' => 'title', 'cmis' => 'cmis:name', 'drupal to cmis' => TRUE, 'cmis to drupal' => TRUE),
   array('drupal' => 'custom_cck_field', 'cmis' => 'some cmis custom property', 'drupal to cmis' => TRUE, 'cmis to drupal' => TRUE),
-  
+
   // copy cmis:objectId to custom_cck_field2 drupal field.
   // 'drupal to cmis' => FALSE, 'cmis to drupal' => TRUE means that only custom_cck_field2 Drupal field is updated.
   // sync process will not try to update cmis:objectId from custom_cck_field2 field's value.
   array('drupal' => 'custom_cck_field2', 'cmis' => 'cmis:objectId', 'drupal to cmis' => FALSE, 'cmis to drupal' => TRUE)
 )
-  
-  
+
+
 CMIS Hooks
 ----------
- 
+
  * hook_cmis_invoke() - allows control over CMIS repository connection.
  * hook_cmis_info() - used to register a module that implements a CMIS client.
  * hook_cmisapi_invoke() - called by cmis api whenever a cmisapi_* is called.
@@ -185,11 +185,11 @@ CMIS Hooks
   - cmis.api.inc
   - cmis_custom.module (hook_cmisapi_invoke)
   - cmis_headerswing.module (hook_cmis_invoke)
- 
-  
+
+
 CMIS Sync Hooks
 ---------------
- 
+
  In order to allow other Drupal modules to manipulate the way Drupal nodes
  are mapped to CMIS objects and back, cmis_sync module exposes two hooks:
   * hook_sync_drupal_cmis_prepare($node, $cmis_object)
@@ -198,18 +198,18 @@ CMIS Sync Hooks
   * hook_sync_cmis_drupal_prepare($cmis_object, $node)
         - Called after cmis_sync, based on $conf['cmis_sync_map'],
         prepared $node to be sent to Drupal's node_save()
-  
-  
+
+
 CMIS Headerswing Settings
 -------------------------
 
  The CMIS Headerswing module provides a mechanism for relaying (or "swinging") HTTP header data
  from Drupal to the CMIS repository. In theory, this can be used to relay any HTTP header.
- In practice, this is particularly useful for passing user authentication information from 
- Drupal to the CMIS repository, providing Single Sign-On (SSO), when authentication is managed by 
+ In practice, this is particularly useful for passing user authentication information from
+ Drupal to the CMIS repository, providing Single Sign-On (SSO), when authentication is managed by
  a third party component that populates $_SERVER vars with credentials, such as HTTP Basic or NTLM.
 
- This module also provides an example of how to create a custom implementation of 
+ This module also provides an example of how to create a custom implementation of
  hook_cmis_invoke(), overriding the default transport mechanism.
 
  Configuration sample:
@@ -220,7 +220,7 @@ $conf['cmis_repositories'] = array(
     'password' => 'admin',
     'label' => 'local cmis repo',
     'url' => 'http://127.0.0.1:8080/cmis',
-    'transport' => 'cmis_headerswing', 
+    'transport' => 'cmis_headerswing',
     'headerswing_headers' => array(
       'HTTP_HOST' => 'FRONTEND_HOST',
       'HTTP_HOST' => 'FRONTEND_HOST_AGAIN',
@@ -248,6 +248,8 @@ Credits
   - Chris Fuller (cfuller@optaros.com)
   - Rich McKnight (rich.mcknight@alfresco.com)
   - Ian Norton (ian.norton@alfresco.com)
+  - Jevon Wright (jevon@rabidtech.co.nz)
+  - Rubin Thomas (rubin@rubinthomas.com)
 
  Maintainers
   - Catalin Balan (cbalan@optaros.com)
