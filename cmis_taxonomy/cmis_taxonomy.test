@@ -42,9 +42,9 @@ class cmis_taxonomyTest extends DrupalWebTestCase {
     $taxonomy_type = 'category';#'category';
     $taxonomy = $conf['cmis_taxonomy']['taxonomy'][$taxonomy_type];
     $taxonomy_setting = $taxonomy + array(
-            'cmis_tagorcat'  => $taxonomy_type,
-          'content_format' => filter_default_format(),
-          'cmis_taxonomy_cron' => FALSE,);
+      'cmis_tagorcat'  => $taxonomy_type,
+      'content_format' => filter_default_format(),
+      'cmis_taxonomy_cron' => FALSE,);
 
 
     $context['results'][$taxonomy_type]['new_term_tids'] = array();

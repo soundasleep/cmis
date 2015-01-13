@@ -2,10 +2,10 @@
 /**
 * Module code to import of CMIS Tag/Category data into 'taxonomy'.
 *
-* @todo add Vocabulary Creation Scripts.
+* @todo add Vocabulary Creation.
 */
 
-// Batch limit for processing in 'cmis_taxonomy_import'
+// Batch limit for csv processing in 'cmis_taxonomy_import'
 define('CMIS_TAXONOMY_IMPORT_BATCH_LIMIT', 100);
 
 // Step by step debug in all functions 'CMIS_TAXONOMY_IMPORT_DEBUG':
@@ -113,7 +113,7 @@ function cmis_taxonomy_access($account) {
     else if (user_access('cmis_taxonomy import')) {
       if (!is_object($account)) {
         $account = user_load($uid);
-        return (is_object($account) && $account->status);
+            return (is_object($account) && $account->status);
       }
       else
         return FALSE;
@@ -617,7 +617,6 @@ function cmis_taxonomy_term_create($cmis_term) {
     $term->format = 'full_html';
     #$term->weight = $cmis_term->weight;
     #$term->language = LANGUAGE_NONE;
-    #$term->field_category_objid[LANGUAGE_NONE][0]['value'] = $cmis_term->field_category_objid;
     #if(is_object($cmis_term->parent) && !empty($cmis_term->parent))
       #$term->parent = (array) $cmis_term->parent;
 
@@ -644,7 +643,6 @@ function cmis_taxonomy_term_update($cmis_term) {
     $term->format = 'full_html';
     #$term->weight = $cmis_term->weight;
     #$term->language = LANGUAGE_NONE;
-    #$term->field_category_objid[LANGUAGE_NONE][0]['value'] = $cmis_term->field_category_objid;
     #if(is_object($cmis_term->parent) && !empty($cmis_term->parent))
       #$term->parent = (array) $cmis_term->parent;
 
@@ -731,19 +729,18 @@ function cmis_taxonomy_import_show_results($success, $results, $operations) {
 /**
  * Implementation of hook_cron
  *
- */
-/*
+
 function cmis_taxonomy_cron() {
   global $user;
   if (variable_get('cmis_taxonomy_enabled', FALSE)) {
-    drupal_flush_all_caches();
+  drupal_flush_all_caches();
     module_load_include('cmis.inc', 'cmis_taxonomy');
     try {
-      cmis_taxonomy_import_batch(TRUE);
+    cmis_taxonomy_import_batch(TRUE);
     }
     catch (CMISException $e) {
       cmis_error_handler('cmis_taxonomy', $e);
-      watchdog('cmis_taxonomy_cron', "CMIS Sync Error: @list", array('@list' => implode(", ", array_keys($e))), WATCHDOG_WARNING);
+    watchdog('cmis_taxonomy_cron', "CMIS Sync Error: @list", array('@list' => implode(", ", array_keys($e))), WATCHDOG_WARNING);
     }
   }
 }
