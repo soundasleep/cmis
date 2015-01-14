@@ -1,0 +1,73 @@
+<?php
+
+/**
+ * @file
+ * Tests for cmis_taxonomy module.
+ */
+
+/**
+ * Test cmis_taxonomy functionality.
+ */
+class cmis_taxonomyTest extends DrupalWebTestCase {
+  protected $profile = 'testing';
+
+  public static function getInfo() {
+    return array(
+      'name' => 'cmis_taxonomy',
+      'description' => 'Test batch processing of CMIS tag/categories to Drupal Taxonomy',
+      'group' => 'cmis',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('cmis', 'cmis_taxonomy');
+  }
+
+  /**
+   * Test CMIS_taxonomy module.
+   */
+  function testCMIS_taxonomy() {
+    global $conf;
+    module_load_include('api.inc', 'cmis');
+    module_load_include('cmis.inc', 'cmis_taxonomy');
+    $ret = "<div class=\"messages status\">\n";
+    /*
+    * Test Code for functions written
+    */
+    $context = array();
+    $error = FALSE;
+    $term_ctr = 0;
+    $context['finished'] = 0;
+    $context['sandbox']['max'] = 0;
+    $taxonomy_type = 'category';#'category';
+    $taxonomy = $conf['cmis_taxonomy']['taxonomy'][$taxonomy_type];
+    $taxonomy_setting = $taxonomy + array(
+      'cmis_tagorcat'  => $taxonomy_type,
+      'content_format' => filter_default_format(),
+      'cmis_taxonomy_cron' => FALSE,);
+
+
+    $context['results'][$taxonomy_type]['new_term_tids'] = array();
+    $context['results'][$taxonomy_type]['new_term_count'] = 0;
+    $context['results'][$taxonomy_type]['old_term_tids'] = array();
+    $context['results'][$taxonomy_type]['old_term_count'] = 0;
+    $context['results'][$taxonomy_setting['cmis_tagorcat']]['term_count'] = 0;
+    $context['sandbox']['progress'] = 0;
+
+    $repository = cmis_get_repository();
+    $taxonomy['cmis_repositoryId'] = $repository->repositoryId;
+    $ret .= t("<h6>repository : </h6>\n<pre>".print_r($repository->repositoryId,1)."</pre>\n");
+    $cmis_obj = cmisapi_getProperties($repository->repositoryId, $taxonomy['cmis_folderId']);
+    $ret .= t("<h6>cmis_obj : </h6>\n<pre>".print_r($cmis_obj,1)."</pre>\n");
+    $cmis_taxonomy = cmis_taxonomy_obj($repository, $taxonomy, $cmis_obj, $context);
+
+    $context['sandbox']['max'] = $context['sandbox']['max'] + $cmis_taxonomy->numItems;
+    $context['results'][$taxonomy_type]['numItems'] = $cmis_taxonomy->numItems;
+
+    $ret .= t("<h6>cmis_taxonomy : </h6>\n<pre>".print_r($cmis_taxonomy,1)."</pre>\n");
+    $cmis_term = cmis_taxonomy_check($cmis_taxonomy, $taxonomy, $context);
+    $ret .= t("<h6>term : </h6>\n<pre>".print_r($cmis_term,1)."</pre>\n");
+    $ret .= t("<h6>context : </h6>\n<pre>".print_r($context,1)."</pre>\n");
+    return $ret."</div>\n";
+  }
+}

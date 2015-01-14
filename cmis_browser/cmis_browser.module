@@ -15,6 +15,15 @@ function cmis_browser_menu() {
     'file' => 'cmis_browser.content_get.inc'
   );
 
+  $items['admin/cmis/browser'] = array(
+    'type' => MENU_NORMAL_ITEM,
+    'title' => t('CMIS Browser'),
+    'page callback' => 'cmis_browser_content_get',
+    'access callback' => 'user_access',
+    'access arguments' => array('access cmis'),
+    'file' => 'cmis_browser.content_get.inc'
+  );
+
   $items['cmis/delete'] = array(
     'type' => MENU_CALLBACK,
     'page callback' => 'drupal_get_form',
@@ -133,8 +142,8 @@ function cmis_browser_browse_form($form, &$form_state) {
   $parts = explode('/', $_GET['q']);
   $path = implode('/', array_slice($parts, 2));
 
-//TODO: Removing autocomplete as a buggy (and not-so-useful) feature. Need to replace with search.
-/*
+  //TODO: Removing autocomplete as a buggy (and not-so-useful) feature. Need to replace with search.
+  /*
   $form['path'] = array(
     '#type' => 'textfield',
     '#title' => t('Path'),

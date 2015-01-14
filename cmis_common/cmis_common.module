@@ -55,7 +55,7 @@ function cmis_common_lib_check() {
     $string = '<h1 class="error">'.t('PHP CMIS Library not detected').'</h1>';
     $string .= '<p>'.t('Please download the PHP CMIS Library from apache chemistry (https://svn.apache.org/repos/asf/chemistry/phpclient/trunk)').'</p>';
     $string .= "<p>".t('Please check you libraries directory, the CMIS lib should be located at'). "<site>/libraries/cmis-phplib/cmis-lib.php".t(' or equivalent')."</p>";
-  return $string;
+    return $string;
   }
 }
 
@@ -111,9 +111,7 @@ function cmis_common_cmisapi_invoke() {
     // CommonCMISService allows other modules to control the way CMISService class
     // calls the CMIS repositories via hook_cmis_invoke()
 
-    $cmis_repository->service = new CommonCMISService($cmis_repository->settings['url'],
-                                                      isset($cmis_repository->settings['user']),
-                                                      isset($cmis_repository->settings['password']));
+    $cmis_repository->service = new CommonCMISService($cmis_repository->settings['url'], isset($cmis_repository->settings['user']), isset($cmis_repository->settings['password']));
   }
 
   return call_user_func_array(array($cmis_repository->service, $cmis_method), $args);
@@ -125,10 +123,19 @@ function cmis_common_cmisapi_invoke() {
  */
 function cmis_common_cmis_invoke($url, $properties, $settings, $dry_run = FALSE) {
   $session = curl_init($url);
+  curl_setopt($session, CURLOPT_BUFFERSIZE, (1024*1024*512));
+  curl_setopt($session, CURLOPT_NOPROGRESS, FALSE);
+  curl_setopt($session, CURLOPT_HEADER, FALSE);
+  curl_setopt($session, CURLOPT_RETURNTRANSFER, TRUE);
+  curl_setopt($session, CURLOPT_NOPROGRESS, FALSE);
+  curl_setopt($session, CURLOPT_FAILONERROR, TRUE);
+  curl_setopt($session, CURLOPT_FOLLOWLOCATION, TRUE);
+  curl_setopt($session, CURLOPT_RETURNTRANSFER, TRUE);
+  curl_setopt($session, CURLOPT_TIMEOUT, 3600);
+  if(array_key_exists('headerswing_headers',$settings) && !empty($settings['headerswing_headers']['HTTP_USER_AGENT']))
+    curl_setopt($session, CURLOPT_USERAGENT, $settings['headerswing_headers']['HTTP_USER_AGENT']);
 
-  curl_setopt($session, CURLOPT_HEADER, false);
-  curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
-  if ($settings['user']) {
+  if (!empty($settings['user'])) {
     curl_setopt($session, CURLOPT_USERPWD, $settings['user'] . ":" . $settings['password']);
   }
 
@@ -156,19 +163,20 @@ function cmis_common_cmis_invoke($url, $properties, $settings, $dry_run = FALSE)
   $retval->content_type_sent = $properties['headers']['Content-Type'];
 
   if (!$dry_run) {
-    $retval->body = curl_exec($session);
+  $retval->body = curl_exec($session);
     $retval->code = curl_getinfo($session, CURLINFO_HTTP_CODE);
-    $retval->content_type = curl_getinfo($session, CURLINFO_CONTENT_TYPE);
-    $retval->content_length = curl_getinfo($session, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
-    curl_close($session);
 
-    if (!in_array($retval->code, array(200,201,204))) {
+  if (!in_array($retval->code, array(200,201,204))) {
       throw new CMISException(t("HTTP call to [@url] returned [@code]. Response: @response", array(
         '@code' => $retval->code,
         '@response' => strip_tags($retval->body),
         '@url' => $url
       )));
     }
+
+  $retval->content_type = curl_getinfo($session, CURLINFO_CONTENT_TYPE);
+    $retval->content_length = curl_getinfo($session, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
+    curl_close($session);
   }
   else {
     $retval->body = NULL;

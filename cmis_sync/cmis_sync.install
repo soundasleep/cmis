@@ -3,6 +3,18 @@
 /**
  * @file - install file for CMIS Sync module
  */
+/**
+ * Implentation of hook_uninstall().
+ */
+function cmis_sync_uninstall() {
+  // Delete variables.
+  db_delete('variable')
+    ->condition('name', db_like('cmis_sync') . '%', 'LIKE')
+    ->execute();
+  db_drop_table('cmis_sync_node');
+  cache_clear_all('variables', 'cache_bootstrap');
+}
+
 
 /**
  * Implementation of hook_schema()
@@ -17,21 +29,28 @@ function cmis_sync_schema() {
         'length'   => 255,
         'not null' => TRUE,
         'default'  => '',
-        'description' => t('repositoryId from the CMIS repository'),
+        'description' => t('repositoryId from CMIS repository'),
       ),
       'cmis_objectId' => array(
         'type'     => 'varchar',
         'length'   => 255,
         'not null' => TRUE,
         'default'  => '',
-        'description' => t('objectId from the CMIS repository'),
+        'description' => t('objectId from CMIS repository'),
+      ),
+      'cmis_versionLabel' => array(
+        'type'     => 'varchar',
+        'length'   => 255,
+        'not null' => TRUE,
+        'default'  => '',
+        'description' => t('versionLabel from CMIS repository'),
       ),
       'changed_timestamp' => array(
         'type'     => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default'  => 0,
-        'description' => t('The most recent time the drupal node has been saved/synchronized'),
+        'description' => t('The most recent time Drupal node has been saved/synchronized'),
       )
     ),
     'unique keys' => array(
@@ -39,10 +58,53 @@ function cmis_sync_schema() {
     ),
     'indexes' => array(
       'cmis_sync_repo_idx' => array('cmis_repositoryId'),
-      'cmis_sync_obj_idx' => array('cmis_objectId')
+      'cmis_sync_obj_idx' => array('cmis_objectId'),
+      'cmis_sync_ver_idx' => array('cmis_versionLabel')
     ),
     'primary key' => array('id'),
   );
-
   return $schema;
 }
+
+/**
+ * Implementation of hook_install().
+ */
+function cmis_sync_install() {
+  cmis_sync_schema();
+}
+
+/**
+* Added Table Column 'cmis_versionLabel'
+*/
+# Implementation of hook_update_N()
+# https://api.drupal.org/api/drupal/modules!system!system.api.php/function/hook_update_N/7
+# https://drupal.org/node/150215
+function cmis_sync_update_7001() {
+  $fields = array(
+    'cmis_versionLabel' => array(
+      'description' => 'versionLabel from the CMIS repository',
+      'type' => 'varchar',
+      'length' => '255',
+      'not null' => TRUE,
+      'default' => '',
+    ),
+  );
+  $indexes = array(
+    'cmis_sync_ver_idx' => array('cmis_versionLabel')
+  );
+  $mess = NULL;
+  foreach ($fields as $f => $field)  {
+    if (!db_field_exists('cmis_sync_node', $f)) {
+      db_add_field('cmis_sync_node', $f, $field);
+      $mess .= 'Database column <pre>'.$f.'<pre> Added \n <br/>';
+      foreach ($indexes as $i => $index)  {
+        if (!db_index_exists('cmis_sync_node', $i)) {
+          db_add_index('cmis_sync_node', $i, array($f));
+          $mess .= 'With Index <pre>'.$i.'<pre> for field <pre>'.$f.'<pre> Added \n <br/>';
+        }
+      }
+    }
+  }
+  return t($mess);
+}
+?>

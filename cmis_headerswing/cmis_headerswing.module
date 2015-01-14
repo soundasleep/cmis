@@ -35,24 +35,5 @@ function cmis_headerswing_cmis_invoke($url, $properties, $settings) {
       }
     }
   }
-
-  /* example on how to decorate cmis_common_cmis_invoke() method:
-  $retval = cmis_common_cmis_invoke($url, $properties, $settings, TRUE);
-
-  // ...
-  // do some custom code here, before doing the actual call
-  // ...
-
-  // execute curl session. These fields are mandatory in order to
-  // get a working hook_cmis_invoke() implementation.
-  $retval->body = curl_exec($retval->curl_session);
-  $retval->code = curl_getinfo($retval->curl_session, CURLINFO_HTTP_CODE);
-  $retval->content_type = curl_getinfo($retval->curl_session, CURLINFO_CONTENT_TYPE);
-  $retval->content_length = curl_getinfo($retval->curl_session, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
-  curl_close($retval->curl_session);
-
-  return $retval;
-  */
-
   return cmis_common_cmis_invoke($url, $properties, $settings);
 }

@@ -1,0 +1,188 @@
+<?php
+
+/**
+ * @file - install file for CMIS Taxonomy module
+ */
+/**
+ * Implentation of hook_uninstall().
+ */
+function cmis_taxonomy_uninstall() {
+  // Delete variables.
+  db_delete('variable')
+    ->condition('name', db_like('cmis_taxonomy') . '%', 'LIKE')
+    ->execute();
+  db_drop_table('cmis_taxonomy');
+  db_drop_table('cmis_vocab');
+  cache_clear_all('variables', 'cache_bootstrap');
+}
+
+
+/**
+ * Implementation of hook_schema()
+ */
+function cmis_taxonomy_schema() {
+  $schema['cmis_taxonomy'] = array(
+    'fields' => array(
+      'cmistxid'  => array(
+      'type' => 'serial',
+    'unsigned' => TRUE,
+      'not null' => TRUE,
+    'description' => t('Primary Key: Unique ID.')
+    ),
+      'vid' => array(
+      'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+    'description' => t('Vocabulary ID from Drupal')
+    ),
+    'tid' => array(
+      'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+    'description' => t('Taxonomy ID from Drupal')
+    ),
+    'cmis_name' => array(
+        'type'     => 'varchar',
+        'length'   => 255,
+        'not null' => TRUE,
+        'default'  => '',
+        'description' => t('Name from CMIS repository'),
+      ),
+    'cmis_drupal_name' => array(
+        'type'     => 'varchar',
+        'length'   => 255,
+        'not null' => TRUE,
+        'default'  => '',
+        'description' => t('Taxonomy Name from Drupal'),
+      ),
+      'cmis_repositoryId' => array(
+        'type'     => 'varchar',
+        'length'   => 255,
+        'not null' => TRUE,
+        'default'  => 'default',
+        'description' => t('repositoryId from CMIS repository'),
+      ),
+      'cmis_objectId' => array(
+        'type'     => 'varchar',
+        'length'   => 255,
+        'not null' => TRUE,
+        'default'  => '',
+        'description' => t('objectId from CMIS repository'),
+      ),
+    'cmis_tagorcat' => array(
+        'type'     => 'varchar',
+        'length'   => 255,
+        'not null' => TRUE,
+        'default'  => '',
+        'description' => t('Tag or Category Flag from the CMIS repository'),
+      ),
+    'cmis_lastModifiedBy' => array(
+        'type'     => 'varchar',
+        'length'   => 255,
+        'not null' => TRUE,
+        'default'  => '',
+        'description' => t('Tag or Category Flag from the CMIS repository'),
+      ),
+    'cmis_lastModificationDate' => array(
+        'type'     => 'varchar',
+        'length'   => 255,
+        'not null' => TRUE,
+        'default'  => '',
+        'description' => t('Tag or Category Flag from the CMIS repository'),
+      ),
+      'timestamp' => array(
+        'type'     => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default'  => 0,
+        'description' => t('The most recent time the drupal node has been saved/synchronized'),
+      )
+    ),
+    'unique keys' => array(
+    ),
+    'indexes' => array(
+      'cmis_tx_repo' => array('cmis_repositoryId'),
+      'cmis_tx_obj' => array('cmis_objectId'),
+    'cmis_tx_vid' => array('vid'),
+      'cmis_tx_tid' => array('tid')
+    ),
+    'primary key' => array('cmistxid'),
+  );
+
+  $schema['cmis_vocab'] = array(
+    'fields' => array(
+      'cmis_vid'  => array(
+      'type' => 'serial',
+    'unsigned' => TRUE,
+      'not null' => TRUE,
+    'description' => t('Primary Key: Unique ID.')
+    ),
+      'vid' => array(
+      'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+    'description' => t('Vocabulary ID from Drupal')
+    ),
+    'cmis_vname' => array(
+        'type'     => 'varchar',
+        'length'   => 255,
+        'not null' => TRUE,
+        'default'  => '',
+        'description' => t('Name from CMIS repository'),
+      ),
+      'cmis_repositoryId' => array(
+        'type'     => 'varchar',
+        'length'   => 255,
+        'not null' => TRUE,
+        'default'  => 'default',
+        'description' => t('repositoryId from CMIS repository'),
+      ),
+      'cmis_objectId' => array(
+        'type'     => 'varchar',
+        'length'   => 255,
+        'not null' => TRUE,
+        'default'  => '',
+        'description' => t('objectId from CMIS repository'),
+      ),
+    'cmis_exclude' => array(
+        'type'     => 'int',
+        'not null' => TRUE,
+        'default'  => 0,
+    'unsigned' => TRUE,
+        'description' => t('Excluded Vocabularies'),
+      ),
+      'timestamp' => array(
+        'type'     => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default'  => 0,
+        'description' => t('The most recent time the drupal node has been saved/synchronized'),
+      )
+    ),
+    'unique keys' => array(
+    ),
+    'indexes' => array(
+      'cmis_vb_repo' => array('cmis_repositoryId'),
+      'cmis_vb_obj' => array('cmis_objectId'),
+      'cmis_vb_vid' => array('vid')
+    ),
+    'primary key' => array('cmis_vid'),
+  );
+  db_update('system')
+      ->expression('weight', ':weight', array(':weight' => 5))
+      ->condition('name', 'cmis_taxonomy')
+      ->condition('type', 'module')
+      ->execute();
+  return $schema;
+}
+
+/**
+ * Implementation of hook_install().
+ */
+function cmis_taxonomy_install() {
+  cmis_taxonomy_schema();
+}
+?>

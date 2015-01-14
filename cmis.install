@@ -8,5 +8,9 @@
  * Implementation of hook_uninstall().
  */
 function cmis_uninstall() {
-  variable_del('cmis_vendor');
+  // Delete variables.
+  db_delete('variable')
+    ->condition('name', db_like('cmis_vendor') . '%', 'LIKE')
+    ->execute();
+  cache_clear_all('variables', 'cache_bootstrap');
 }

@@ -17,6 +17,13 @@ function cmis_query_menu() {
     'access arguments' => array('access cmis'),
   );
 
+  $items['admin/cmis/query'] = array(
+    'type' => MENU_NORMAL_ITEM,
+    'title' => t('CMIS Query'),
+    'page callback' => 'cmis_query_view',
+    'access arguments' => array('access cmis'),
+  );
+
   return $items;
 }
 
@@ -87,7 +94,7 @@ function cmis_query_view($query = NULL, $format = 'html', $p = 1) {
 function cmis_query_form($form, &$form_state) {
   $cmis_query = array(
     '#type' => 'fieldset',
-    '#title' => t('Search the repository using CMIS SQL 1.0 queries.'),
+    '#title' => t('Search the repository using CMIS SQL 1.1 queries.'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
